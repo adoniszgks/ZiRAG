@@ -4,14 +4,19 @@ from pathlib import Path
 # 3rdparty libs 
 from chromadb import PersistentClient
 from chromadb.api.models.Collection import Collection
-from chromadb.types import Embeddings, IDs, Metadatas, QueryResult
+from chromadb.api.types import Embeddings, IDs, Metadatas, QueryResult
 
 # Internal libs
+from config import CACHE_DIR
 from vectorstore.base import BaseIndexer
 
 
 class ChromaDBIndexer(BaseIndexer):
-    def __init__(self, collection_name: str, persist_dir: Path) -> None:
+    def __init__(
+        self, 
+        collection_name: str = "zirag", 
+        persist_dir: Path = CACHE_DIR
+    ) -> None:
         self.client: PersistentClient = PersistentClient(path=persist_dir)
         self.collection: Collection = self.client.get_or_create_collection(name=collection_name)
         

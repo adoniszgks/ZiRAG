@@ -34,4 +34,4 @@ class ImageRAGPipeline:
     
     def query(self, query: str):
         query_embeddings: Tensor = self.retriever.embed_queries([query])
-        return self.indexer.search(query_embeddings=query_embeddings)
+        return self.indexer.search(query_embeddings=query_embeddings.tolist())
