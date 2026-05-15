@@ -5,7 +5,7 @@ from pathlib import Path
 import torch
 from colpali_engine.models import ColQwen2, ColQwen2Processor
 from PIL.Image import Image
-from transformers.utils.import_utils import is_flash_attn_2_available
+from transformers.utils.import_utils import is_flash_attn_2_available as fta2_available
 
 # Internal libs
 from config import CACHE_DIR
@@ -20,8 +20,7 @@ class ColQwen2Retriever(BaseImageRetriever):
     ) -> None:
         self.model: ColQwen2 = ColQwen2.from_pretrained(
             model_name,
-            attn_implementation="flash_attention_2" 
-                if is_flash_attn_2_available() else None,
+            attn_implementation="flash_attention_2" if fta2_available() else None,
             cache_dir=cache_dir,
             device_map="cuda:0",
             local_files_only=True,

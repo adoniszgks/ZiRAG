@@ -1,9 +1,10 @@
 # Standard libs
 from pathlib import Path
 
+from PIL.Image import Image
+
 # 3rdparty libs
 from pymupdf import Document, Page, Pixmap
-from PIL.Image import Image
 
 
 def convert_pdf_to_pil_images(pdf_path: Path) -> list[Image]:
