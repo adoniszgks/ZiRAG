@@ -1,0 +1,12 @@
+[project]
+name = "zirag"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "chromadb>=1.5.9",
+    "colpali-engine>=0.3.16",
+    "pymupdf>=1.27.2.3",
+    "torch>=2.11.0",
+]
