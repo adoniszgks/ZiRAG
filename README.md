@@ -32,11 +32,11 @@ venv\Scripts\activate           # Windows
 
 ```bash
 # For CUDA (recommended):
-pip install colpali-engine pymupdf chromadb
-pip install torch --index-url https://download.pytorch.org/whl/cu118
+uv pip install colpali-engine pymupdf chromadb
+uv pip install torch --index-url https://download.pytorch.org/whl/cu118
 
 # For CPU only:
-pip install colpali-engine pymupdf chromadb torch
+uv pip install colpali-engine pymupdf chromadb torch
 ```
 
 ---

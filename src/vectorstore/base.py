@@ -5,16 +5,7 @@ from typing import Any
 
 class BaseIndexer(ABC):
     @abstractmethod
-    def add(
-        self,
-        embeddings: list[list[float]],
-        ids: list[str],
-        metadatas: list[dict[str, Any]] | None = None,
-    ) -> None: ...
+    def add(self, embeddings, ids, metadatas=None) -> None: ...
 
     @abstractmethod
-    def search(
-        self,
-        query_embeddings: list[list[float]],
-        n_results: int = 10,
-    ) -> dict[str, Any]: ...
+    def search(self, query_embeddings, n_results=10) -> Any: ...

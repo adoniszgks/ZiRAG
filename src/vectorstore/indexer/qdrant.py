@@ -4,7 +4,14 @@ from typing import Any
 
 # 3rdparty libs
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, PointStruct, VectorParams
+from qdrant_client.conversions.common_types import QueryResponse
+from qdrant_client.models import (
+    Distance,
+    MultiVectorComparator,
+    MultiVectorConfig,
+    PointStruct,
+    VectorParams,
+)
 
 # Internal libs
 from config import CACHE_DIR
@@ -26,9 +33,16 @@ class QdrantIndexer(BaseIndexer):
         ]
 
         if collection_name not in collections_names:
+            vectors_config: VectorParams = VectorParams(
+                size=vector_size,
+                distance=Distance.COSINE,
+                multivector_config=MultiVectorConfig(
+                    comparator=MultiVectorComparator.MAX_SIM,
+                ),
+            )
             self.client.create_collection(
                 collection_name=collection_name,
-                vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
+                vectors_config=vectors_config,
             )
 
     def add(
@@ -38,8 +52,12 @@ class QdrantIndexer(BaseIndexer):
         metadatas: list[dict[str, Any]] | None = None,
     ) -> None:
         points: list[PointStruct] = [
-            PointStruct(id=point_id, vector=vector, payload=payload or {})
-            for point_id, (vector, payload) in enumerate(zip(ids, zip(embeddings, metadatas or [])))
+            PointStruct(id=point_id, vector=vector, payload=payload)
+            for point_id, vector, payload in zip(
+                ids,
+                embeddings,
+                metadatas or [{}] * len(ids),
+            )
         ]
         self.client.upsert(collection_name=self.collection_name, points=points)
 
@@ -47,7 +65,7 @@ class QdrantIndexer(BaseIndexer):
         self,
         query_embeddings: list[list[float]],
         n_results: int = 10,
-    ) -> dict[str, Any]:
+    ) -> QueryResponse:
         return self.client.query_points(
             collection_name=self.collection_name,
             query=query_embeddings[0],
