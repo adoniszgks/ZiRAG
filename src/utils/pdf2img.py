@@ -1,9 +1,8 @@
 # Standard libs
 from pathlib import Path
 
-from PIL.Image import Image
-
 # 3rdparty libs
+from PIL.Image import Image
 from pymupdf import Document, Page, Pixmap
 
 
