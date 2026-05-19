@@ -7,7 +7,6 @@ from google.genai.types import Content, GenerateContentConfig, Part
 from PIL.Image import Image
 
 # Internal libs
-from config import LLM_API_KEY, LLM_MODEL
 from schema import LLMResponse
 
 
@@ -20,11 +19,12 @@ def _to_part(image: Image) -> Part:
 class GeminiClient:
     def __init__(
         self,
-        model: str = LLM_MODEL,
+        api_key: str | None = None,
+        model: str | None = None,
         system_instruction: str | None = None,
     ) -> None:
         self.model = model
-        self.client = Client(api_key=LLM_API_KEY)
+        self.client = Client(api_key=api_key)
         self.system_instruction = system_instruction
 
     def generate(self, query: str, images: list[Image] | None = None) -> LLMResponse:

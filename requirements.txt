@@ -4,5 +4,5 @@ chromadb
 qdrant-client
 python-dotenv
 google-genai
-pillow
-torch
+#pillow
+#torch
