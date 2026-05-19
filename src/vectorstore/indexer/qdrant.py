@@ -1,10 +1,8 @@
 # Standard libs
 from pathlib import Path
-from typing import Any
 
 # 3rdparty libs
 from qdrant_client import QdrantClient
-from qdrant_client.conversions.common_types import QueryResponse
 from qdrant_client.models import (
     Distance,
     MultiVectorComparator,
@@ -15,6 +13,7 @@ from qdrant_client.models import (
 
 # Internal libs
 from config import CACHE_DIR
+from schema import Embeddings, Metadata, SearchResult
 from vectorstore.base import BaseIndexer
 
 
@@ -25,49 +24,54 @@ class QdrantIndexer(BaseIndexer):
         persist_dir: Path = CACHE_DIR,
         vector_size: int = 128,
     ) -> None:
-        self.collection_name: str = collection_name
-        self.client: QdrantClient = QdrantClient(path=str(persist_dir / "qdrant"))
+        self.collection_name = collection_name
+        self.client = QdrantClient(path=str(persist_dir / "qdrant"))
 
-        collections_names: list[str] = [
+        collection_names = [
             collection.name for collection in self.client.get_collections().collections
         ]
 
-        if collection_name not in collections_names:
-            vectors_config: VectorParams = VectorParams(
-                size=vector_size,
-                distance=Distance.COSINE,
-                multivector_config=MultiVectorConfig(
-                    comparator=MultiVectorComparator.MAX_SIM,
-                ),
-            )
+        if collection_name not in collection_names:
             self.client.create_collection(
                 collection_name=collection_name,
-                vectors_config=vectors_config,
+                vectors_config=VectorParams(
+                    size=vector_size,
+                    distance=Distance.COSINE,
+                    multivector_config=MultiVectorConfig(
+                        comparator=MultiVectorComparator.MAX_SIM,
+                    ),
+                ),
             )
 
     def add(
         self,
-        embeddings: list[list[float]],
+        embeddings: Embeddings,
         ids: list[str],
-        metadatas: list[dict[str, Any]] | None = None,
+        metadatas: list[Metadata] | None = None,
     ) -> None:
-        points: list[PointStruct] = [
+        points = [
             PointStruct(id=point_id, vector=vector, payload=payload)
             for point_id, vector, payload in zip(
-                ids,
-                embeddings,
-                metadatas or [{}] * len(ids),
+                ids, embeddings, metadatas or [{}] * len(ids)
             )
         ]
         self.client.upsert(collection_name=self.collection_name, points=points)
 
     def search(
         self,
-        query_embeddings: list[list[float]],
+        query_embeddings: Embeddings,
         n_results: int = 10,
-    ) -> QueryResponse:
-        return self.client.query_points(
+    ) -> list[SearchResult]:
+        response = self.client.query_points(
             collection_name=self.collection_name,
             query=query_embeddings[0],
             limit=n_results,
         )
+        return [
+            SearchResult(
+                key=str(point.id),
+                score=point.score,
+                payload=point.payload or {},
+            )
+            for point in response.points
+        ]

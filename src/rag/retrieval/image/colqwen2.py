@@ -22,7 +22,7 @@ class ColQwen2Retriever(BaseImageRetriever):
         local_files_only: bool = True,
         dtype=bfloat16,
     ) -> None:
-        self.model: ColQwen2 = ColQwen2.from_pretrained(
+        self.model = ColQwen2.from_pretrained(
             model_name,
             attn_implementation="flash_attention_2" if fta2_available() else None,
             cache_dir=cache_dir,
@@ -31,10 +31,7 @@ class ColQwen2Retriever(BaseImageRetriever):
             torch_dtype=dtype,
         ).eval()
 
-        self.processor: ColQwen2Processor = ColQwen2Processor.from_pretrained(
-            model_name,
-            cache_dir=cache_dir,
-        )
+        self.processor = ColQwen2Processor.from_pretrained(model_name, cache_dir)
 
     def _embed(self, batch: BatchEncoding | BatchFeature) -> Tensor:
         with no_grad():
@@ -47,6 +44,6 @@ class ColQwen2Retriever(BaseImageRetriever):
         return self._embed(self.processor.process_texts(queries))
 
     def score(self, queries: list[str], images: list[Image]) -> Tensor:
-        query_embs: Tensor = self.embed_queries(queries)
-        image_embs: Tensor = self.embed_images(images)
-        return self.processor.score_multi_vector(qs=query_embs, ps=image_embs)
+        query_embeddings = self.embed_queries(queries)
+        image_embeddings = self.embed_images(images)
+        return self.processor.score_multi_vector(query_embeddings, image_embeddings)
