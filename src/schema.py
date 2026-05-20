@@ -2,6 +2,9 @@
 from dataclasses import dataclass
 from typing import Any
 
+# 3rdparty libs
+from PIL.Image import Image
+
 Embeddings = list[list[float]]
 Metadata = dict[str, Any]
 
@@ -14,5 +17,17 @@ class SearchResult:
 
 
 @dataclass
-class LLMResponse:
+class Query:
+    text: str | None = None
+    images: list[Image] | None = None
+
+
+@dataclass
+class Context:
+    query: Query
+    images: list[Image]
+
+
+@dataclass
+class Response:
     text: str | None

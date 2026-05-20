@@ -25,23 +25,21 @@ class ChromaDBIndexer(BaseIndexer):
         ids: list[str],
         metadatas: list[Metadata] | None = None,
     ) -> None:
-        self.collection.add(embeddings=embeddings, ids=ids, metadatas=metadatas)
+        self.collection.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
 
     def search(
         self,
         query_embeddings: Embeddings,
-        query_texts: list[str] | None = None,
         n_results: int = 10,
     ) -> list[SearchResult]:
         result = self.collection.query(
             query_embeddings=query_embeddings,
-            query_texts=query_texts,
             n_results=n_results,
         )
         ids = result["ids"][0]
         scores = result["distances"][0]
         metadatas = result["metadatas"][0]
         return [
-            SearchResult(key=uid, score=score, payload=meta or {})
-            for uid, score, meta in zip(ids, scores, metadatas)
+            SearchResult(key=key, score=score, payload=meta or {})
+            for key, score, meta in zip(ids, scores, metadatas)
         ]

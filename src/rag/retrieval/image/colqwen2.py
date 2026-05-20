@@ -4,13 +4,14 @@ from pathlib import Path
 # 3rdparty libs
 from colpali_engine.models import ColQwen2, ColQwen2Processor
 from PIL.Image import Image
-from torch import Tensor, bfloat16, no_grad
+from torch import Tensor, bfloat16, cat, no_grad
 from transformers import BatchEncoding, BatchFeature
 from transformers.utils.import_utils import is_flash_attn_2_available as fta2_available
 
 # Internal libs
 from config import CACHE_DIR
 from rag.retrieval.base import BaseImageRetriever
+from schema import Query
 
 
 class ColQwen2Retriever(BaseImageRetriever):
@@ -30,20 +31,30 @@ class ColQwen2Retriever(BaseImageRetriever):
             local_files_only=local_files_only,
             torch_dtype=dtype,
         ).eval()
-
         self.processor = ColQwen2Processor.from_pretrained(model_name, cache_dir)
 
     def _embed(self, batch: BatchEncoding | BatchFeature) -> Tensor:
         with no_grad():
             return self.model(**batch.to(self.model.device))
 
+    def embed_text(self, text: str) -> Tensor:
+        return self._embed(self.processor.process_texts([text]))
+
     def embed_images(self, images: list[Image]) -> Tensor:
         return self._embed(self.processor.process_images(images))
 
-    def embed_queries(self, queries: list[str]) -> Tensor:
-        return self._embed(self.processor.process_texts(queries))
+    def embed_query(self, query: Query) -> Tensor:
+        text, images = query.text, query.images
+        match (text, images):
+            case (None, None):
+                raise ValueError("Empty query.")
+            case (None, _):
+                return self.embed_images(images)
+            case (_, None):
+                return self.embed_text(text)
+        return cat([self.embed_text(text), self.embed_images(images)], dim=1)
 
-    def score(self, queries: list[str], images: list[Image]) -> Tensor:
-        query_embeddings = self.embed_queries(queries)
-        image_embeddings = self.embed_images(images)
-        return self.processor.score_multi_vector(query_embeddings, image_embeddings)
+    def score(self, query: Query, passages: list[Image]) -> Tensor:
+        qs = self.embed_query(query)
+        ps = self.embed_images(passages)
+        return self.processor.score_multi_vector(qs=qs, ps=ps)
