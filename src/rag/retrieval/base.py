@@ -2,23 +2,23 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+# 3rdparty libs
+from PIL.Image import Image
+from torch import Tensor
+
+# Internal libs
+from schema import Query
+
 
 class BaseRetriever(ABC):
     @abstractmethod
-    def score(self, query, documents) -> Any: ...
-
-
-class BaseImageRetriever(BaseRetriever):
-    @abstractmethod
-    def embed_images(self, images) -> Any: ...
+    def embed_images(self, images: list[Image]) -> Tensor: ...
 
     @abstractmethod
-    def embed_text(self, text) -> Any: ...
+    def embed_text(self, text: str) -> Tensor: ...
 
     @abstractmethod
-    def embed_query(self, query) -> Any: ...
+    def embed_query(self, query: Query) -> Tensor: ...
 
-
-class BaseTextRetriever(BaseRetriever):
     @abstractmethod
-    def search(self, query) -> Any: ...
+    def score(self, query: Query, passages: list[Image]) -> Any: ...

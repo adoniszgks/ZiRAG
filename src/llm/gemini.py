@@ -2,24 +2,30 @@
 from io import BytesIO
 
 # 3rdparty libs
-from google.genai import Client
+from google import genai
 from google.genai.types import Content, GenerateContentConfig, Part
 from PIL.Image import Image
 
 # Internal libs
-from schema import Context, Response
+from schema import Audio, Context, Response
 
 
-def _to_part(image: Image) -> Part:
+def _image_to_part(image: Image) -> Part:
     buffer = BytesIO()
     image.save(buffer, format="JPEG")
     return Part.from_bytes(data=buffer.getvalue(), mime_type="image/jpeg")
 
 
+def _audio_to_part(audio: Audio) -> Part:
+    with open(audio.path) as audio_file:
+        return Part.from_bytes(data=audio_file.read(), mime_type="audio/mp3")
+
+
 def _make_parts(context: Context) -> list[Part]:
     return [
-        *(_to_part(img) for img in (context.query.images or [])),
-        *(_to_part(img) for img in (context.images)),
+        *(_image_to_part(img) for img in (context.query.images or [])),
+        *(_audio_to_part(aud) for aud in (context.query.audio or [])),
+        *(_image_to_part(img) for img in (context.images)),
         Part.from_text(text=context.query.text),
     ]
 
@@ -32,7 +38,7 @@ class GeminiClient:
         system_instruction: str | None = None,
     ) -> None:
         self.model = model
-        self.client = Client(api_key=api_key)
+        self.client = genai.Client(api_key=api_key)
         self.system_instruction = system_instruction
 
     def generate(self, context: Context) -> Response:

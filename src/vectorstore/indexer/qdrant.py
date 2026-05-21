@@ -13,7 +13,7 @@ from qdrant_client.models import (
 
 # Internal libs
 from config import CACHE_DIR
-from schema import Embeddings, Metadata, SearchResult
+from schema import Embedding, Metadata, SearchResult
 from vectorstore.base import BaseIndexer
 
 
@@ -45,8 +45,8 @@ class QdrantIndexer(BaseIndexer):
 
     def add(
         self,
-        embeddings: Embeddings,
         ids: list[str],
+        embeddings: list[Embedding],
         metadatas: list[Metadata] | None = None,
     ) -> None:
         points = [
@@ -59,7 +59,7 @@ class QdrantIndexer(BaseIndexer):
 
     def search(
         self,
-        query_embeddings: Embeddings,
+        query_embeddings: list[Embedding],
         n_results: int = 10,
     ) -> list[SearchResult]:
         response = self.client.query_points(

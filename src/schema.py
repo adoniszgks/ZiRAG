@@ -1,11 +1,13 @@
 # Standard libs
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 # 3rdparty libs
 from PIL.Image import Image
 
-Embeddings = list[list[float]]
+Embedding = list[float]
+Embeddings = list[Embedding]
 Metadata = dict[str, Any]
 
 
@@ -17,9 +19,16 @@ class SearchResult:
 
 
 @dataclass
+class Audio:
+    path: Path
+    embeddings: list[Embedding] | None = None
+
+
+@dataclass
 class Query:
     text: str | None = None
     images: list[Image] | None = None
+    audios: list[Audio] | None = None
 
 
 @dataclass

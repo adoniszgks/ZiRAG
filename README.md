@@ -1,6 +1,6 @@
-# ZIRAG
+# ZiRAG
 
-ZIRAG aims to extend classical Retrieval-Augmented Generation by supporting both 
+ZiRAG aims to extend classical Retrieval-Augmented Generation by supporting both 
 multimodal document corpora and multimodal user queries.
 
 ---

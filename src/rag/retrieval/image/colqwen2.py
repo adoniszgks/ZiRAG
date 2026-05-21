@@ -10,11 +10,11 @@ from transformers.utils.import_utils import is_flash_attn_2_available as fta2_av
 
 # Internal libs
 from config import CACHE_DIR
-from rag.retrieval.base import BaseImageRetriever
+from rag.retrieval.base import BaseRetriever
 from schema import Query
 
 
-class ColQwen2Retriever(BaseImageRetriever):
+class ColQwen2Retriever(BaseRetriever):
     def __init__(
         self,
         model_name: str = "vidore/colqwen2-v1.0",

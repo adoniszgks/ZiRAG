@@ -7,7 +7,7 @@ from PIL.Image import Image
 
 # Internal libs
 from llm.gemini import GeminiClient
-from rag.retrieval.base import BaseImageRetriever
+from rag.retrieval.base import BaseRetriever
 from schema import Context, Query, Response, Metadata, SearchResult
 from utils import pdf2img
 from vectorstore.base import BaseIndexer
@@ -34,11 +34,11 @@ def _make_images(results: list[SearchResult]) -> list[Image]:
     ]
 
 
-class ImageRAGPipeline:
+class ZiRAG:
     def __init__(
         self,
         indexer: BaseIndexer,
-        retriever: BaseImageRetriever,
+        retriever: BaseRetriever,
         llm: GeminiClient,
     ) -> None:
         self.indexer = indexer
@@ -56,7 +56,11 @@ class ImageRAGPipeline:
 
         self.indexer.add(embeddings=embeddings, ids=ids, metadatas=metadatas)
 
+        # TODO: Extract text and index over ChromaDB
+
     def search(self, query: Query, n_results: int = 10) -> list[SearchResult]:
+        # TODO: Audio handling
+        # TODO: Text-only => Search in Chroma
         query_embeddings = self.retriever.embed_query(query).tolist()
         return self.indexer.search(query_embeddings, n_results)
 

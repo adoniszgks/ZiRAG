@@ -13,3 +13,5 @@ DATA_DIR = DRIVE_DIR / "data"
 
 LLM_API_KEY = getenv("LLM_API_KEY", "")
 LLM_MODEL = getenv("LLM_MODEL", "")
+
+TEXT_EMBEDDING_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
