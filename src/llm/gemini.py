@@ -17,16 +17,17 @@ def _image_to_part(image: Image) -> Part:
 
 
 def _audio_to_part(audio: Audio) -> Part:
-    with open(audio.path) as audio_file:
+    with open(audio.path, "rb") as audio_file:
         return Part.from_bytes(data=audio_file.read(), mime_type="audio/mp3")
 
 
 def _make_parts(context: Context) -> list[Part]:
     return [
         *(_image_to_part(img) for img in (context.query.images or [])),
-        *(_audio_to_part(aud) for aud in (context.query.audio or [])),
-        *(_image_to_part(img) for img in (context.images)),
-        Part.from_text(text=context.query.text),
+        *(_audio_to_part(aud) for aud in (context.query.audios or [])),
+        *(_image_to_part(img) for img in (context.images or [])),
+        *(Part.from_text(text=txt) for txt in (context.texts or [])),
+        Part.from_text(text=context.query.text or ""),
     ]
 
 

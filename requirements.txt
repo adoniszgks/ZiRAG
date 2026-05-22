@@ -9,3 +9,4 @@ torch
 openai-whisper
 sentence-transformers
 gradio
+whisper

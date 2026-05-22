@@ -3,51 +3,52 @@ from pathlib import Path
 
 # 3rdparty libs
 from chromadb import PersistentClient
+from chromadb.utils.embedding_functions import (
+    ChromaBm25EmbeddingFunction,
+    SentenceTransformerEmbeddingFunction,
+)
 
 # Internal libs
-from config import CACHE_DIR
-from schema import Embedding, Metadata, SearchResult
+from config import CACHE_DIR, TEXT_EMB_MODEL
+from schema import Metadata, SearchMode, SearchResult
 from vectorstore.base import BaseIndexer
 
 
 class ChromaDBIndexer(BaseIndexer):
-    def __init__(
-        self,
-        collection_name: str = "zirag",
-        persist_dir: Path = CACHE_DIR,
-    ) -> None:
+    def __init__(self, persist_dir: Path = CACHE_DIR) -> None:
         self.client = PersistentClient(path=str(persist_dir))
-        self.collection = self.client.get_or_create_collection(name=collection_name)
+        self.cosine_collection = self.client.get_or_create_collection(
+            name="zirag_cosine",
+            embedding_function=SentenceTransformerEmbeddingFunction(TEXT_EMB_MODEL),
+        )
+        self.bm25_collection = self.client.get_or_create_collection(
+            name="zirag_bm25",
+            embedding_function=ChromaBm25EmbeddingFunction(),
+        )
 
     def add(
         self,
         ids: list[str],
-        embeddings: list[Embedding] | None = None,
-        documents: list[str] | None = None,
+        documents: list[str],
         metadatas: list[Metadata] | None = None,
     ) -> None:
-        self.collection.add(
-            ids=ids,
-            embeddings=embeddings,
-            documents=documents,
-            metadatas=metadatas,
-        )
+        self.cosine_collection.add(ids=ids, documents=documents, metadatas=metadatas)
+        self.bm25_collection.add(ids=ids, documents=documents, metadatas=metadatas)
 
     def search(
         self,
-        query_embeddings: list[Embedding] | None = None,
-        query_texts: list[str] | None = None,
+        query_text: str,
         n_results: int = 10,
+        mode: SearchMode = SearchMode.BM25,
     ) -> list[SearchResult]:
-        result = self.collection.query(
-            query_embeddings=query_embeddings,
-            query_texts=query_texts,
-            n_results=n_results,
+        collection = (
+            self.bm25_collection if mode == SearchMode.BM25 else self.cosine_collection
         )
-        ids = result["ids"][0]
-        scores = result["distances"][0]
-        metadatas = result["metadatas"][0]
+        result = collection.query(query_texts=[query_text], n_results=n_results)
+        ids = (result["ids"] or [[]])[0]
+        scores = (result["distances"] or [[]])[0]
+        metadatas = (result["metadatas"] or [[]])[0]
         return [
-            SearchResult(key=key, score=score, payload=meta or {})
-            for key, score, meta in zip(ids, scores, metadatas)
+            SearchResult(key=key, score=score, payload=payload or {})
+            for key, score, payload in zip(ids, scores, metadatas)
         ]

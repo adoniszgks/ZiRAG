@@ -1,5 +1,6 @@
 # Standard libs
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +10,12 @@ from PIL.Image import Image
 Embedding = list[float]
 Embeddings = list[Embedding]
 Metadata = dict[str, Any]
+
+
+class SearchMode(Enum):
+    BM25 = "keyword"
+    SIM = "similarity"
+    HYBRID = "hybrid"
 
 
 @dataclass
@@ -34,7 +41,8 @@ class Query:
 @dataclass
 class Context:
     query: Query
-    images: list[Image]
+    texts: list[str] | None = None
+    images: list[Image] | None = None
 
 
 @dataclass
