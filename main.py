@@ -20,7 +20,6 @@ from rag.zirag import ZiRAG
 from vectorstore.qdrant import QdrantIndexer
 
 PDF = DATA_DIR / "test_manual.pdf"
-QUERY_TEXT = "E005"
 
 
 def build_textual_rag(client: QdrantClient, llm: GeminiLLM) -> TextualRAG:
@@ -61,7 +60,7 @@ if __name__ == "__main__":
         textual_rag = build_textual_rag(client, llm)
         textual_rag.index(PDF)
 
-        app = create_app(zirag=textual_rag)
+        app = create_app(rag=textual_rag)
         app.launch(prevent_thread_lock=True)
         webbrowser.open("http://127.0.0.1:7860/?__theme=dark")
         app.block_thread()

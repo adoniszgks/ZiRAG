@@ -1,9 +1,18 @@
-.venv/
-__pycache__/ 
-*.pyc 
-*.env
-.vscode/ 
-.ruff_cache/
-NOTES.*
-data/*
+# Data & cache
 cache/*
+data/*
+
+# Environment
+*.env
+.venv/
+
+# Editor
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# Notes
+NOTES.*
