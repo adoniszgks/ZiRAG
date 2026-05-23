@@ -1,5 +1,6 @@
 # Standard libs
 from pathlib import Path
+from typing import Any
 
 # 3rdparty libs
 import gradio
@@ -7,15 +8,14 @@ from numpy import ndarray
 from PIL import Image as PILImage
 
 # Internal libs
-from pipeline import ZiRAG
-from rag.retrieval.audio.whisper_stt import WhisperTranscriber
+from rag.base import BaseRAG
 from schema import Query
 
 
-def create_app(zirag: ZiRAG, transcriber: WhisperTranscriber) -> gradio.Blocks:
+def create_app(zirag: BaseRAG, transcriber: Any = None) -> gradio.Blocks:
     def respond(text: str, image: ndarray | None, audio: str | None) -> str:
 
-        if audio is not None:
+        if audio is not None and transcriber is not None:
             audio_text = transcriber.transcribe(Path(audio))
             text = f"{text}\n{audio_text}" if text else audio_text
 
@@ -28,8 +28,8 @@ def create_app(zirag: ZiRAG, transcriber: WhisperTranscriber) -> gradio.Blocks:
         response = zirag.generate(query)
         return response.text
 
-    with gradio.Blocks(title="ZIRAG") as demo:
-        gradio.Markdown("# ZIRAG -- Multimodal RAG for technical documentation")
+    with gradio.Blocks(title="ZiRAG", theme=gradio.themes.Glass()) as demo:
+        gradio.Markdown("# ZiRAG -- Multimodal RAG for technical documentation")
         with gradio.Row():
             text_input = gradio.Textbox(label="Error description")
             image_input = gradio.Image(label="Display photo")

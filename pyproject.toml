@@ -26,4 +26,4 @@ pythonpath = ["src"]
 line-length = 88
 
 [tool.ruff.lint]
-select = ["E", "F"]
+select = ["E", "F", "I"]

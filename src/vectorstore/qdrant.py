@@ -1,6 +1,3 @@
-# Standard libs
-from pathlib import Path
-
 # 3rdparty libs
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
@@ -12,7 +9,6 @@ from qdrant_client.models import (
 )
 
 # Internal libs
-from config import CACHE_DIR
 from schema import Embedding, Metadata, SearchResult
 from vectorstore.base import BaseIndexer
 
@@ -20,12 +16,14 @@ from vectorstore.base import BaseIndexer
 class QdrantIndexer(BaseIndexer):
     def __init__(
         self,
+        client: QdrantClient,
         collection_name: str = "zirag",
-        persist_dir: Path = CACHE_DIR,
         vector_size: int = 128,
+        multivector: bool = True,
     ) -> None:
         self.collection_name = collection_name
-        self.client = QdrantClient(path=str(persist_dir / "qdrant"))
+        self.multivector = multivector
+        self.client = client
 
         collection_names = [
             collection.name for collection in self.client.get_collections().collections
@@ -39,7 +37,9 @@ class QdrantIndexer(BaseIndexer):
                     distance=Distance.COSINE,
                     multivector_config=MultiVectorConfig(
                         comparator=MultiVectorComparator.MAX_SIM,
-                    ),
+                    )
+                    if multivector
+                    else None,
                 ),
             )
 
@@ -47,13 +47,12 @@ class QdrantIndexer(BaseIndexer):
         self,
         ids: list[str],
         embeddings: list[Embedding],
-        metadatas: list[Metadata] | None = None,
+        metadatas: list[Metadata],
     ) -> None:
+        resolved = metadatas or [{}] * len(ids)
         points = [
             PointStruct(id=point_id, vector=vector, payload=payload)
-            for point_id, vector, payload in zip(
-                ids, embeddings, metadatas or [{}] * len(ids)
-            )
+            for point_id, vector, payload in zip(ids, embeddings, resolved)
         ]
         self.client.upsert(collection_name=self.collection_name, points=points)
 
@@ -64,14 +63,12 @@ class QdrantIndexer(BaseIndexer):
     ) -> list[SearchResult]:
         response = self.client.query_points(
             collection_name=self.collection_name,
-            query=query_embeddings[0],
+            query=query_embeddings if self.multivector else query_embeddings[0],
             limit=n_results,
         )
         return [
             SearchResult(
-                key=str(point.id),
-                score=point.score,
-                payload=point.payload or {},
+                key=str(point.id), score=point.score, payload=point.payload or {}
             )
             for point in response.points
         ]

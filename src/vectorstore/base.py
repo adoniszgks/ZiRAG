@@ -9,13 +9,13 @@ class BaseIndexer(ABC):
     def add(
         self,
         ids: list[str],
-        embeddings: list[Embedding] | list[Embeddings] | None = None,
-        metadatas: list[Metadata] | None = None,
+        embeddings: list[Embedding] | list[Embeddings],
+        metadatas: list[Metadata],
     ) -> None: ...
 
     @abstractmethod
     def search(
         self,
-        query_embeddings: list[Embedding] | list[Embeddings] | None = None,
+        query_embeddings: list[Embedding] | list[Embeddings] | str,
         n_results: int = 10,
     ) -> list[SearchResult]: ...

@@ -5,12 +5,12 @@ from pathlib import Path
 from PIL.Image import Image
 
 # Internal libs
-from llm.gemini import GeminiClient
 from rag.base import BaseRAG
-from rag.image import ImageRAG
-from rag.text import TextRAG
-from schema import Context, Query, Response, SearchResult
-from utils import pdf2img
+from rag.generation.llm.gemini import GeminiLLM
+from rag.textual import TextualRAG
+from rag.visual import VisualRAG
+from schema import Context, Query, Response, SearchMode, SearchResult
+from utils import pdftools
 
 
 def _make_texts(results: list[SearchResult]) -> list[str]:
@@ -23,7 +23,7 @@ def _make_texts(results: list[SearchResult]) -> list[str]:
 
 def _make_images(results: list[SearchResult]) -> list[Image]:
     return [
-        pdf2img.convert_pdf_page_to_pil_image(
+        pdftools.convert_pdf_page_to_pil_image(
             pdf_file=Path(result.payload["pdf_path"]),
             page_num=result.payload["page"],
         )
@@ -35,21 +35,21 @@ def _make_images(results: list[SearchResult]) -> list[Image]:
 class ZiRAG(BaseRAG):
     def __init__(
         self,
-        text_rag: TextRAG,
-        image_rag: ImageRAG,
-        llm: GeminiClient,
+        textual_rag: TextualRAG,
+        visual_rag: VisualRAG,
+        llm: GeminiLLM,
     ) -> None:
-        self.text_rag = text_rag
-        self.image_rag = image_rag
+        self.textual_rag = textual_rag
+        self.visual_rag = visual_rag
         self.llm = llm
 
     def index(self, pdf_file: Path) -> None:
-        self.text_rag.index(pdf_file)
-        self.image_rag.index(pdf_file)
+        self.textual_rag.index(pdf_file)
+        self.visual_rag.index(pdf_file)
 
     def search(self, query: Query, n_results: int = 10) -> list[SearchResult]:
-        text_results = self.text_rag.search(query, n_results)
-        image_results = self.image_rag.search(query, n_results)
+        text_results = self.textual_rag.search(SearchMode.SIM, query, n_results)
+        image_results = self.visual_rag.search(query, n_results)
         return text_results + image_results
 
     def generate(self, query: Query, n_results: int = 3) -> Response:

@@ -23,3 +23,8 @@ def convert_pdf_page_to_pil_image(pdf_file: Path, page_num: int) -> Image:
         page = pdf.load_page(page_num)
         pixmap = page.get_pixmap()
         return Pixmap.pil_image(pixmap)
+
+
+def extract_pdf_texts(pdf_file: Path) -> list[str]:
+    with Document(pdf_file) as pdf:
+        return [str(pdf.load_page(i).get_text()) for i in range(pdf.page_count)]

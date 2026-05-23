@@ -6,11 +6,11 @@ from uuid import uuid4
 from PIL.Image import Image
 
 # Internal libs
-from llm.gemini import GeminiClient
-from rag.retrieval.base import BaseRetriever
-from schema import Context, Embedding, Query, Response, Metadata, SearchResult
 from rag.base import BaseRAG
-from utils import pdf2img
+from rag.generation.llm.gemini import GeminiLLM
+from rag.retrieval.models.vlm.colqwen2 import ColQwen2Retriever
+from schema import Context, Embedding, Metadata, Query, Response, SearchResult
+from utils import pdftools
 from vectorstore.base import BaseIndexer
 
 
@@ -32,7 +32,7 @@ def _make_metadatas(embeddings: list[Embedding], pdf_file: Path) -> list[Metadat
 
 def _make_images(results: list[SearchResult]) -> list[Image]:
     return [
-        pdf2img.convert_pdf_page_to_pil_image(
+        pdftools.convert_pdf_page_to_pil_image(
             pdf_file=Path(result.payload["pdf_path"]),
             page_num=result.payload["page"],
         )
@@ -40,19 +40,19 @@ def _make_images(results: list[SearchResult]) -> list[Image]:
     ]
 
 
-class ImageRAG(BaseRAG):
+class VisualRAG(BaseRAG):
     def __init__(
         self,
         indexer: BaseIndexer,
-        retriever: BaseRetriever,
-        llm: GeminiClient,
+        retriever: ColQwen2Retriever,
+        llm: GeminiLLM,
     ) -> None:
         self.indexer = indexer
         self.retriever = retriever
         self.llm = llm
 
     def index(self, pdf_file: Path) -> None:
-        images = pdf2img.convert_pdf_to_pil_images(pdf_file)
+        images = pdftools.convert_pdf_to_pil_images(pdf_file)
         multi_embeddings = self.retriever.embed_images(images)
         embeddings = multi_embeddings.tolist()
 

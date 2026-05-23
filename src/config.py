@@ -7,7 +7,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DRIVE_DIR = Path(getenv("DRIVE_DIR", "/default/path"))
+_PROJECT_ROOT = Path(__file__).parents[1]
+_COLAB_DIR = Path("/content/drive/MyDrive/HFT/Semester 8/Bachelorarbeit/Prototyp")
+
+
+def _resolve_drive_dir() -> Path:
+    if drive := getenv("DRIVE_DIR"):
+        return Path(drive)
+    if _PROJECT_ROOT.exists():
+        return _PROJECT_ROOT
+    return _COLAB_DIR
+
+
+DRIVE_DIR = _resolve_drive_dir()
 CACHE_DIR = DRIVE_DIR / "cache"
 DATA_DIR = DRIVE_DIR / "data"
 

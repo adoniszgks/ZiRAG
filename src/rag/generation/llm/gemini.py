@@ -31,7 +31,7 @@ def _make_parts(context: Context) -> list[Part]:
     ]
 
 
-class GeminiClient:
+class GeminiLLM:
     def __init__(
         self,
         api_key: str | None = None,

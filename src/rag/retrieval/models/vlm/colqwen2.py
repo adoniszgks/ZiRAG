@@ -10,11 +10,10 @@ from transformers.utils.import_utils import is_flash_attn_2_available as fta2_av
 
 # Internal libs
 from config import CACHE_DIR
-from rag.retrieval.base import BaseRetriever
 from schema import Query
 
 
-class ColQwen2Retriever(BaseRetriever):
+class ColQwen2Retriever:
     def __init__(
         self,
         model_name: str = "vidore/colqwen2-v1.0",
@@ -52,7 +51,7 @@ class ColQwen2Retriever(BaseRetriever):
                 return self.embed_images(images)
             case (_, None):
                 return self.embed_text(text)
-        return cat([self.embed_text(text), self.embed_images(images)], dim=1)
+        return cat([self.embed_text(text), self.embed_images(images)], dim=0)
 
     def score(self, query: Query, passages: list[Image]) -> Tensor:
         qs = self.embed_query(query)
