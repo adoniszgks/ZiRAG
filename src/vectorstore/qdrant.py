@@ -19,11 +19,11 @@ class QdrantIndexer(BaseIndexer):
         client: QdrantClient,
         collection_name: str = "zirag",
         vector_size: int = 128,
-        multivector: bool = True,
+        is_multivector: bool = True,
     ) -> None:
         self.collection_name = collection_name
-        self.multivector = multivector
         self.client = client
+        self.is_multivector = is_multivector
 
         collection_names = [
             collection.name for collection in self.client.get_collections().collections
@@ -38,7 +38,7 @@ class QdrantIndexer(BaseIndexer):
                     multivector_config=MultiVectorConfig(
                         comparator=MultiVectorComparator.MAX_SIM,
                     )
-                    if multivector
+                    if is_multivector
                     else None,
                 ),
             )
@@ -49,10 +49,10 @@ class QdrantIndexer(BaseIndexer):
         embeddings: list[Embedding],
         metadatas: list[Metadata],
     ) -> None:
-        resolved = metadatas or [{}] * len(ids)
+        payloads = metadatas or [{}] * len(ids)
         points = [
             PointStruct(id=point_id, vector=vector, payload=payload)
-            for point_id, vector, payload in zip(ids, embeddings, resolved)
+            for point_id, vector, payload in zip(ids, embeddings, payloads)
         ]
         self.client.upsert(collection_name=self.collection_name, points=points)
 
@@ -63,7 +63,7 @@ class QdrantIndexer(BaseIndexer):
     ) -> list[SearchResult]:
         response = self.client.query_points(
             collection_name=self.collection_name,
-            query=query_embeddings if self.multivector else query_embeddings[0],
+            query=query_embeddings if self.is_multivector else query_embeddings[0],
             limit=n_results,
         )
         return [

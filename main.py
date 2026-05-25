@@ -27,7 +27,7 @@ def build_textual_rag(client: QdrantClient, llm: GeminiLLM) -> TextualRAG:
         indexer=QdrantIndexer(
             client,
             collection_name="zirag_text",
-            multivector=False,
+            is_multivector=False,
             vector_size=384,
         ),
         embedder=TextEmbedder(),
