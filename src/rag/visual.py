@@ -35,7 +35,9 @@ class VisualRAG(BaseRAG):
             for result in results
         ]
 
-    def index(self, pdf_file: Path) -> None:
+    def index(self, pdf_file: Path | None) -> None:
+        if not pdf_file:
+            return
         images = pdftools.convert_pdf_to_pil_images(pdf_file)
         multi_embeddings = self.retriever.embed_images(images)
         embeddings = multi_embeddings.tolist()

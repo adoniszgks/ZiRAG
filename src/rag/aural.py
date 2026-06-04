@@ -21,7 +21,9 @@ class AuralRAG(BaseRAG):
         self.embedder = embedder
         self.llm = llm
 
-    def index(self, audio_file: Path) -> None:
+    def index(self, audio_file: Path | None) -> None:
+        if not audio_file:
+            return
         embeddings = self.embedder.embed([str(audio_file)])
         ids = make_ids(embeddings)
         metadatas = make_audio_metadatas(embeddings, audio_file)

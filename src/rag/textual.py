@@ -25,7 +25,9 @@ class TextualRAG(BaseRAG):
         self.embedder = embedder
         self.llm = llm
 
-    def index(self, pdf_file: Path) -> None:
+    def index(self, pdf_file: Path | None) -> None:
+        if not pdf_file:
+            return
         texts = pdftools.extract_pdf_texts(pdf_file)
         embeddings = self.embedder.embed(texts)
         ids = make_ids(texts)
