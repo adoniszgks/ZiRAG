@@ -9,7 +9,7 @@ from PIL import Image as PILImage
 
 # Internal libs
 from rag.base import BaseRAG
-from schema import Query
+from schema import Audio, Query
 
 
 def create_app(rag: BaseRAG, transcriber: Any = None) -> gradio.Blocks:
@@ -22,6 +22,7 @@ def create_app(rag: BaseRAG, transcriber: Any = None) -> gradio.Blocks:
         query = Query(
             texts=[text] if text else None,
             images=[query_image] if query_image else None,
+            audios=[Audio(path=Path(audio))] if audio else None,
         )
 
         response = rag.generate(query)

@@ -60,5 +60,5 @@ class GeminiLLM:
             model=self.model,
             contents=content,
             config=config,
-        ).text
+        ).text or ""
         return Response(content=content)

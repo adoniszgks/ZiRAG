@@ -7,9 +7,9 @@ from rag.generation.llm.gemini import GeminiLLM
 from rag.retrieval.models.embedder.text_embedder import TextEmbedder
 from rag.retrieval.models.searcher.bm25 import BM25Searcher
 from schema import Context, Query, Response, SearchMode, SearchResult
-from utils import pdftools
+from utils.pdftools import extract_pdf_texts
 from utils.ragtools import make_ids, make_text_metadatas
-from vectorstore.qdrant import BaseIndexer
+from vectorstore.base import BaseIndexer
 
 
 class TextualRAG(BaseRAG):
@@ -25,13 +25,13 @@ class TextualRAG(BaseRAG):
         self.embedder = embedder
         self.llm = llm
 
-    def index(self, pdf_file: Path | None) -> None:
-        if not pdf_file:
+    def index(self, text_path: Path | None) -> None:
+        if not text_path:
             return
-        texts = pdftools.extract_pdf_texts(pdf_file)
+        texts = extract_pdf_texts(text_path)
         embeddings = self.embedder.embed(texts)
         ids = make_ids(texts)
-        metadatas = make_text_metadatas(texts, pdf_file)
+        metadatas = make_text_metadatas(texts, text_path)
         self.indexer.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
         self.bm25.index(ids=ids, documents=texts, metadatas=metadatas)
 

@@ -21,12 +21,12 @@ class AuralRAG(BaseRAG):
         self.embedder = embedder
         self.llm = llm
 
-    def index(self, audio_file: Path | None) -> None:
-        if not audio_file:
+    def index(self, audio_path: Path | None) -> None:
+        if not audio_path:
             return
-        embeddings = self.embedder.embed([str(audio_file)])
+        embeddings = self.embedder.embed([str(audio_path)])
         ids = make_ids(embeddings)
-        metadatas = make_audio_metadatas(embeddings, audio_file)
+        metadatas = make_audio_metadatas(embeddings, audio_path)
         self.indexer.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
 
     def search(self, query: Query, n_results: int = 5) -> list[SearchResult]:

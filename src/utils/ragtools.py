@@ -2,12 +2,43 @@
 from pathlib import Path
 from uuid import uuid4
 
+# 3rdparty libs
+from PIL.Image import Image
+
 # Internal libs
-from schema import Embedding, Metadata
+from schema import Audio, Embedding, Metadata, SearchResult
+from utils import pdftools
 
 
 def make_ids(items: list) -> list[str]:
     return [str(uuid4()) for _ in items]
+
+
+def make_texts(results: list[SearchResult]) -> list[str]:
+    return [
+        result.payload["text"]
+        for result in results
+        if result.payload.get("source") == "text"
+    ]
+
+
+def make_images(results: list[SearchResult]) -> list[Image]:
+    return [
+        pdftools.convert_pdf_page_to_pil_image(
+            file_path=Path(result.payload["pdf_path"]),
+            page_num=result.payload["page"],
+        )
+        for result in results
+        if result.payload.get("source") == "image"
+    ]
+
+
+def make_audios(results: list[SearchResult]) -> list[Audio]:
+    return [
+        Audio(path=Path(result.payload["audio_path"]))
+        for result in results
+        if result.payload.get("source") == "audio"
+    ]
 
 
 def make_text_metadatas(texts: list[str], path: Path) -> list[Metadata]:
