@@ -1,10 +1,8 @@
 # Standard libs
-import sys
 import webbrowser
 
-sys.path.insert(0, "src")
-
 # 3rdparty libs
+import gradio
 from qdrant_client import QdrantClient
 
 # Internal libs
@@ -90,12 +88,17 @@ if __name__ == "__main__":
     client = QdrantClient(path=str(CACHE_DIR / "qdrant"))
 
     try:
-        zirag = build_zirag(client, llm)
-        if zirag.textual_rag.indexer.is_empty() or zirag.visual_rag.indexer.is_empty():
-            zirag.index(text=PDF, image=PDF, audio=None)
+        textual_rag = build_textual_rag(client, llm)
+        aural_rag = build_aural_rag(client, llm)
+        if textual_rag.indexer.is_empty():
+            textual_rag.index(PDF)
 
-        app = create_app(rag=zirag)
-        app.launch(server_name="0.0.0.0", prevent_thread_lock=True)
+        app = create_app(rag=textual_rag)
+        app.launch(
+            server_name="0.0.0.0",
+            prevent_thread_lock=True,
+            theme=gradio.themes.Glass(),
+        )
         webbrowser.open("http://127.0.0.1:7860/?__theme=dark")
         app.block_thread()
     finally:

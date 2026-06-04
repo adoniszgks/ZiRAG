@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "zirag"
 version = "0.1.0"
@@ -7,7 +11,7 @@ requires-python = ">=3.12,<3.14"
 dependencies = [
     "colpali-engine>=0.3.16",
     "google-genai>=2.4.0",
-    "gradio",
+    "gradio>=6.0",
     "openai-whisper",
     "pillow",
     "pymupdf>=1.27.2.3",
@@ -20,6 +24,9 @@ dependencies = [
 
 [dependency-groups]
 dev = ["mypy>=2.1.0", "pytest>=8.0.0", "ruff>=0.11.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

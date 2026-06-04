@@ -13,6 +13,7 @@ data/*
 __pycache__/
 *.pyc
 .ruff_cache/
+*.egg-info/
 
 # Notes
 NOTES.*
