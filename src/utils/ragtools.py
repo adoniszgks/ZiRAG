@@ -10,12 +10,12 @@ def make_ids(items: list) -> list[str]:
     return [str(uuid4()) for _ in items]
 
 
-def make_text_metadatas(texts: list[str], pdf_file: Path) -> list[Metadata]:
+def make_text_metadatas(texts: list[str], path: Path) -> list[Metadata]:
     return [
         {
             "page": page_id,
-            "pdf": pdf_file.name,
-            "pdf_path": str(pdf_file),
+            "pdf": path.name,
+            "pdf_path": str(path),
             "source": "text",
             "text": text,
         }
@@ -23,13 +23,24 @@ def make_text_metadatas(texts: list[str], pdf_file: Path) -> list[Metadata]:
     ]
 
 
-def make_image_metadatas(embeddings: list[Embedding], pdf_file: Path) -> list[Metadata]:
+def make_image_metadatas(embeddings: list[Embedding], path: Path) -> list[Metadata]:
     return [
         {
             "page": page_id,
-            "pdf": pdf_file.name,
-            "pdf_path": str(pdf_file),
+            "pdf": path.name,
+            "pdf_path": str(path),
             "source": "image",
         }
         for page_id in range(len(embeddings))
+    ]
+
+
+def make_audio_metadatas(embeddings: list[Embedding], path: Path) -> list[Metadata]:
+    return [
+        {
+            "audio": path.name,
+            "audio_path": str(path),
+            "source": "audio",
+        }
+        for _ in range(len(embeddings))
     ]

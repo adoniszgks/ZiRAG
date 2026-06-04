@@ -33,7 +33,7 @@ class Audio:
 
 @dataclass
 class Query:
-    text: str | None = None
+    texts: list[str] | None = None
     images: list[Image] | None = None
     audios: list[Audio] | None = None
 
@@ -43,8 +43,9 @@ class Context:
     query: Query
     texts: list[str] | None = None
     images: list[Image] | None = None
+    audios: list[Audio] | None = None
 
 
 @dataclass
 class Response:
-    text: str | None
+    content: str | None

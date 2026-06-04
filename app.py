@@ -20,12 +20,12 @@ def create_app(rag: BaseRAG, transcriber: Any = None) -> gradio.Blocks:
 
         query_image = PILImage.fromarray(image) if image is not None else None
         query = Query(
-            text=text or None,
+            texts=[text] if text else None,
             images=[query_image] if query_image else None,
         )
 
         response = rag.generate(query)
-        return response.text
+        return response.content or ""
 
     with gradio.Blocks(title="ZiRAG", theme=gradio.themes.Glass()) as demo:
         gradio.Markdown("# ZiRAG -- Multimodal RAG for technical documentation")

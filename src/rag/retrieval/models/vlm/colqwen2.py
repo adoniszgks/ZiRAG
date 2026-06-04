@@ -4,7 +4,7 @@ from pathlib import Path
 # 3rdparty libs
 from colpali_engine.models import ColQwen2, ColQwen2Processor
 from PIL.Image import Image
-from torch import Tensor, bfloat16, cat, no_grad
+from torch import Tensor, bfloat16, cat, float32, no_grad
 from transformers import BatchEncoding, BatchFeature
 from transformers.utils.import_utils import is_flash_attn_2_available as fta2_available
 
@@ -20,7 +20,7 @@ class ColQwen2Retriever:
         cache_dir: Path | None = CACHE_DIR,
         device: str = "cuda:0",
         local_files_only: bool = True,
-        dtype=bfloat16,
+        dtype=bfloat16 if fta2_available() else float32,
     ) -> None:
         self.model = ColQwen2.from_pretrained(
             model_name,
@@ -43,7 +43,8 @@ class ColQwen2Retriever:
         return self._embed(self.processor.process_images(images))
 
     def embed_query(self, query: Query) -> Tensor:
-        text, images = query.text, query.images
+        text = " ".join(query.texts) if query.texts else None
+        images = query.images
         match (text, images):
             case (None, None):
                 raise ValueError("Empty query.")

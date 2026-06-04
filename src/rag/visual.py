@@ -39,13 +39,13 @@ class VisualRAG(BaseRAG):
         images = pdftools.convert_pdf_to_pil_images(pdf_file)
         multi_embeddings = self.retriever.embed_images(images)
         embeddings = multi_embeddings.tolist()
-
         ids = make_ids(embeddings)
         metadatas = make_image_metadatas(embeddings, pdf_file)
-
         self.indexer.add(embeddings=embeddings, ids=ids, metadatas=metadatas)
 
     def search(self, query: Query, n_results: int = 10) -> list[SearchResult]:
+        if not query.texts and not query.images:
+            return []
         query_embeddings = self.retriever.embed_query(query).tolist()
         return self.indexer.search(query_embeddings, n_results)
 

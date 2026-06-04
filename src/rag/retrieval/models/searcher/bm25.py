@@ -29,7 +29,7 @@ class BM25Searcher:
         if not self.bm25:
             return []
 
-        scores = self.bm25.get_scores(query.text.lower().split())
+        scores = self.bm25.get_scores(" ".join(query.texts or []).lower().split())
         top_n = sorted(
             range(len(scores)),
             key=lambda i: scores[i],

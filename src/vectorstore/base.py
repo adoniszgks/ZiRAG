@@ -19,3 +19,6 @@ class BaseIndexer(ABC):
         query_embeddings: list[Embedding] | list[Embeddings] | str,
         n_results: int = 10,
     ) -> list[SearchResult]: ...
+
+    @abstractmethod
+    def is_empty(self) -> bool: ...

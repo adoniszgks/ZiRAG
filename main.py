@@ -9,9 +9,9 @@ from qdrant_client import QdrantClient
 
 # Internal libs
 from app import create_app
-from config import CACHE_DIR, DATA_DIR, LLM_API_KEY, LLM_MODEL
+from config import CACHE_DIR, DATA_DIR, LLM_API_KEY, LLM_MODEL, SYSTEM_PROMPT
 from rag.generation.llm.gemini import GeminiLLM
-from rag.retrieval.models.embedder.sentence_transformer import TextEmbedder
+from rag.retrieval.models.embedder.text_embedder import TextEmbedder
 from rag.retrieval.models.searcher.bm25 import BM25Searcher
 from rag.retrieval.models.vlm.colqwen2 import ColQwen2Retriever
 from rag.textual import TextualRAG
@@ -37,9 +37,15 @@ def build_textual_rag(client: QdrantClient, llm: GeminiLLM) -> TextualRAG:
 
 
 def build_visual_rag(client: QdrantClient, llm: GeminiLLM) -> VisualRAG:
+    try:
+        # Load from cache
+        retriever = ColQwen2Retriever(local_files_only=True)
+    except Exception:
+        # Download on first run
+        retriever = ColQwen2Retriever(local_files_only=False)
     return VisualRAG(
         indexer=QdrantIndexer(client, collection_name="zirag_visual"),
-        retriever=ColQwen2Retriever(local_files_only=False),
+        retriever=retriever,
         llm=llm,
     )
 
@@ -53,15 +59,20 @@ def build_zirag(client: QdrantClient, llm: GeminiLLM) -> ZiRAG:
 
 
 if __name__ == "__main__":
-    llm = GeminiLLM(api_key=LLM_API_KEY, model=LLM_MODEL)
+    llm = GeminiLLM(
+        api_key=LLM_API_KEY,
+        model=LLM_MODEL,
+        system_instruction=SYSTEM_PROMPT,
+    )
     client = QdrantClient(path=str(CACHE_DIR / "qdrant"))
 
     try:
-        textual_rag = build_textual_rag(client, llm)
-        textual_rag.index(PDF)
+        zirag = build_zirag(client, llm)
+        if zirag.textual_rag.indexer.is_empty() or zirag.visual_rag.indexer.is_empty():
+            zirag.index(PDF)
 
-        app = create_app(rag=textual_rag)
-        app.launch(prevent_thread_lock=True)
+        app = create_app(rag=zirag)
+        app.launch(server_name="0.0.0.0", prevent_thread_lock=True)
         webbrowser.open("http://127.0.0.1:7860/?__theme=dark")
         app.block_thread()
     finally:

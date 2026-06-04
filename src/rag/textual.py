@@ -4,7 +4,7 @@ from pathlib import Path
 # Internal libs
 from rag.base import BaseRAG
 from rag.generation.llm.gemini import GeminiLLM
-from rag.retrieval.models.embedder.sentence_transformer import TextEmbedder
+from rag.retrieval.models.embedder.text_embedder import TextEmbedder
 from rag.retrieval.models.searcher.bm25 import BM25Searcher
 from schema import Context, Query, Response, SearchMode, SearchResult
 from utils import pdftools
@@ -39,9 +39,11 @@ class TextualRAG(BaseRAG):
         query: Query,
         n_results: int = 10,
     ) -> list[SearchResult]:
+        if not query.texts:
+            return []
         if mode == SearchMode.BM25:
             return self.bm25.search(query, n_results)
-        query_embeddings = self.embedder.embed([query.text or ""])
+        query_embeddings = self.embedder.embed(query.texts)
         return self.indexer.search(query_embeddings, n_results)
 
     def generate(self, query: Query, n_results: int = 3) -> Response:

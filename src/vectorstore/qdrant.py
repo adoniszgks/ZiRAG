@@ -72,3 +72,6 @@ class QdrantIndexer(BaseIndexer):
             )
             for point in response.points
         ]
+
+    def is_empty(self) -> bool:
+        return self.client.count(self.collection_name).count == 0
