@@ -2,6 +2,8 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
+    Filter,
+    FilterSelector,
     MultiVectorComparator,
     MultiVectorConfig,
     PointStruct,
@@ -75,3 +77,9 @@ class QdrantIndexer(BaseIndexer):
 
     def is_empty(self) -> bool:
         return self.client.count(self.collection_name).count == 0
+
+    def clear(self) -> None:
+        self.client.delete(
+            collection_name=self.collection_name,
+            points_selector=FilterSelector(filter=Filter()),
+        )
