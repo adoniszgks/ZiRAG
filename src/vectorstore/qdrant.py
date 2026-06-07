@@ -70,7 +70,9 @@ class QdrantIndexer(BaseIndexer):
         )
         return [
             SearchResult(
-                key=str(point.id), score=point.score, payload=point.payload or {}
+                key=str(point.id),
+                score=point.score,
+                payload=point.payload or {},
             )
             for point in response.points
         ]
