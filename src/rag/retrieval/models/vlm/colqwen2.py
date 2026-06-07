@@ -30,7 +30,10 @@ class ColQwen2Retriever:
             local_files_only=local_files_only,
             torch_dtype=dtype,
         ).eval()
-        self.processor = ColQwen2Processor.from_pretrained(model_name, cache_dir)
+        self.processor = ColQwen2Processor.from_pretrained(
+            model_name,
+            cache_dir=cache_dir,
+        )
 
     def _embed(self, batch: BatchEncoding | BatchFeature) -> Tensor:
         with no_grad():
@@ -52,7 +55,12 @@ class ColQwen2Retriever:
                 return self.embed_images(images)
             case (_, None):
                 return self.embed_text(text)
-        return cat([self.embed_text(text), self.embed_images(images)], dim=0)
+
+        # TODO: support N images -- flatten [N, P, D] -> [1, N*P, D]
+        # before cat, audio queries are handled by AuralRAG, not here
+
+        # dim=1 concatenates token sequences; assumes batch_size=1 for both
+        return cat([self.embed_text(text), self.embed_images(images)], dim=1)
 
     def score(self, query: Query, passages: list[Image]) -> Tensor:
         qs = self.embed_query(query)
