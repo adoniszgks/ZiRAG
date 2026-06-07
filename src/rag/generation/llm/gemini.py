@@ -33,9 +33,9 @@ def _make_parts(context: Context) -> list[Part]:
         *(_texts_to_part(txt) for txt in (context.query.texts or [])),
         *(_image_to_part(img) for img in (context.query.images or [])),
         *(_audio_to_part(aud) for aud in (context.query.audios or [])),
-        *(_texts_to_part(txt) for txt in (context.texts or [])),
-        *(_image_to_part(img) for img in (context.images or [])),
-        *(_audio_to_part(aud) for aud in (context.audios or [])),
+        *(_texts_to_part(txt) for txt in context.texts),
+        *(_image_to_part(img) for img in context.images),
+        *(_audio_to_part(aud) for aud in context.audios),
     ]
 
 
@@ -55,7 +55,10 @@ class GeminiLLM:
         if not parts:
             parts = [Part.from_text(text="[no input provided]")]
         content = Content(parts=parts, role="user")
-        config = GenerateContentConfig(system_instruction=self.system_instruction)
+        system_instruction = self.system_instruction or ""
+        if context.language and context.language != "English":
+            system_instruction += f"\nAlways respond in {context.language}."
+        config = GenerateContentConfig(system_instruction=system_instruction or None)
         content = self.client.models.generate_content(
             model=self.model,
             contents=content,

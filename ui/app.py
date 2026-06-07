@@ -1,0 +1,130 @@
+# Standard libs
+from pathlib import Path
+
+# 3rdparty libs
+import gradio as gr
+from numpy import ndarray
+from PIL import Image as PILImage
+
+# Internal libs
+from rag.aural import AuralRAG
+from rag.generation.llm.gemini import GeminiLLM
+from rag.textual import TextualRAG
+from rag.visual import VisualRAG
+from rag.zirag import ZiRAG
+from schema import Audio, Query
+
+_LANGUAGES = ["English", "German", "French", "Spanish", "Italian"]
+_TITLE = "# ZiRAG Multimodal Retrieval-Augmented Generation for technical documentation"
+
+
+class App:
+    def __init__(
+        self,
+        textual_rag: TextualRAG | None = None,
+        visual_rag: VisualRAG | None = None,
+        aural_rag: AuralRAG | None = None,
+        llm: GeminiLLM | None = None,
+    ) -> None:
+        self.textual_rag = textual_rag
+        self.visual_rag = visual_rag
+        self.aural_rag = aural_rag
+        self.llm = llm
+
+    def _respond(
+        self,
+        text: str,
+        image: ndarray | None,
+        audio: str | None,
+        use_textual: bool,
+        use_visual: bool,
+        use_aural: bool,
+        language: str,
+    ) -> str:
+        texts = [text] if text else None
+        images = [PILImage.fromarray(image)] if image is not None else None
+        audios = [Audio(path=Path(audio))] if audio else None
+
+        query = Query(texts=texts, images=images, audios=audios)
+        zirag = ZiRAG(
+            textual_rag=self.textual_rag if use_textual else None,
+            visual_rag=self.visual_rag if use_visual else None,
+            aural_rag=self.aural_rag if use_aural else None,
+            llm=self.llm,
+        )
+        response = zirag.generate(query=query, language=language)
+        return response.content or ""
+
+    @property
+    def css(self) -> str:
+        return (Path(__file__).parent / "style.css").read_text()
+
+    @property
+    def theme(self) -> gr.themes.Base:
+        return gr.themes.Glass()
+
+    def build(self) -> gr.Blocks:
+        with gr.Blocks(title="ZiRAG") as demo:
+            # Title row
+            gr.Markdown(_TITLE)
+
+            # RAG selection row
+            with gr.Row():
+                with gr.Column(scale=1):
+                    use_textual = gr.Checkbox(label="Textual RAG", value=True)
+                with gr.Column(scale=1):
+                    use_visual = gr.Checkbox(label="Visual RAG", value=False)
+                with gr.Column(scale=1):
+                    use_aural = gr.Checkbox(label="Aural RAG", value=False)
+
+            # Input row
+            with gr.Row():
+                with gr.Column(scale=1):
+                    text = gr.Textbox(
+                        label="Text query",
+                        visible=True,
+                        elem_id="text-input",
+                    )
+                with gr.Column(scale=1):
+                    image = gr.Image(
+                        label="Image query",
+                        visible=False,
+                        elem_id="image-input",
+                    )
+                with gr.Column(scale=1):
+                    audio = gr.Audio(
+                        sources=["microphone", "upload"],
+                        label="Audio query",
+                        type="filepath",
+                        visible=False,
+                        elem_id="audio-input",
+                    )
+
+            # Response row
+            language = gr.Dropdown(
+                choices=_LANGUAGES,
+                value="English",
+                label="Response language",
+            )
+            output = gr.Textbox(label="Response", elem_id="response-box")
+            button = gr.Button("Search", elem_id="search-btn", variant="primary")
+
+            use_textual.change(lambda x: gr.update(visible=x), use_textual, text)
+            use_visual.change(lambda x: gr.update(visible=x), use_visual, image)
+            use_aural.change(lambda x: gr.update(visible=x), use_aural, audio)
+
+            button.click(
+                fn=self._respond,
+                inputs=[
+                    text,
+                    image,
+                    audio,
+                    use_textual,
+                    use_visual,
+                    use_aural,
+                    language,
+                ],
+                outputs=output,
+            )
+
+        return demo

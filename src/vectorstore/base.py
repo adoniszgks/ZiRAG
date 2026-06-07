@@ -22,3 +22,9 @@ class BaseIndexer(ABC):
 
     @abstractmethod
     def is_empty(self) -> bool: ...
+
+    @abstractmethod
+    def clear(self) -> None: ...
+
+    @abstractmethod
+    def purge(self) -> None: ...

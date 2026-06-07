@@ -1,0 +1,86 @@
+/* Base font size — exclude headings so they keep their natural size */
+.gradio-container p,
+.gradio-container span,
+.gradio-container label,
+.gradio-container input,
+.gradio-container textarea,
+.gradio-container button {
+    font-size: 1.1rem !important;
+}
+
+/* Title */
+.gradio-container h1 { font-size: 2rem !important; }
+.gradio-container h2 { font-size: 1.6rem !important; }
+.gradio-container h3 { font-size: 1.3rem !important; }
+
+/* Center the checkbox row */
+.rag-row > div {
+    justify-content: center !important;
+    gap: 2rem !important;
+}
+
+/* Remove checkbox container background */
+.rag-toggle {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.5rem !important;
+}
+
+/* Bigger checkboxes */
+.rag-toggle input[type="checkbox"] {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    cursor: pointer;
+}
+.rag-toggle label span {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+}
+
+/* Query inputs — same height across all three columns */
+#text-input,
+#image-input,
+#audio-input {
+    height: 260px !important;
+}
+#text-input textarea {
+    height: 100% !important;
+    resize: none !important;
+}
+
+/* Stop button in audio recorder */
+#audio-input [class*="stop-button"] {
+    width: 60% !important;
+    min-width: 60% !important;
+}
+
+/* Resume button in audio recorder */
+#audio-input [class*="resume-button"] {
+    width: 80% !important;
+    min-width: 80% !important;
+}
+
+/* Playback speed button — big enough to contain "0.5x" without overflow */
+#audio-input [class*="playback"],
+#audio-input [aria-label*="playback speed"] {
+    min-width: 3.2rem !important;
+    min-height: 2rem !important;
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.85rem !important;
+}
+
+/* Search button */
+#search-btn {
+    font-size: 1.35rem !important;
+    padding: 1.2rem 2.5rem !important;
+    min-width: 180px !important;
+    font-weight: 600 !important;
+}
+
+/* Response box */
+#response-box textarea {
+    font-size: 1.05rem !important;
+    min-height: 220px !important;
+    line-height: 1.6 !important;
+}

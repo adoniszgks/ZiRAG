@@ -83,3 +83,6 @@ class QdrantIndexer(BaseIndexer):
             collection_name=self.collection_name,
             points_selector=FilterSelector(filter=Filter()),
         )
+
+    def purge(self) -> None:
+        self.client.delete_collection(collection_name=self.collection_name)

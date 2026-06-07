@@ -1,5 +1,5 @@
 # Standard libs
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -41,9 +41,10 @@ class Query:
 @dataclass
 class Context:
     query: Query
-    texts: list[str] | None = None
-    images: list[Image] | None = None
-    audios: list[Audio] | None = None
+    texts: list[str] = field(default_factory=list)
+    images: list[Image] = field(default_factory=list)
+    audios: list[Audio] = field(default_factory=list)
+    language: str = "English"
 
 
 @dataclass
