@@ -15,5 +15,5 @@ def test_llm_reachability() -> None:
     response = client.generate(context)
 
     assert isinstance(response, Response)
-    assert response.text and response.text.strip()
-    print(f"\nUser: {context.query.text}\nLLM: {response.text}")
+    assert response.content and response.content.strip()
+    print(f"\nUser: {context.query.texts}\nLLM: {response.content}")

@@ -8,7 +8,7 @@ install:
 	uv pip install laion-clap --no-deps
 
 test:
-	uv run pytest tests
+	uv run python -m pytest tests -s
 
 run:
 	uv run python main.py
