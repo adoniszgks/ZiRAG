@@ -6,7 +6,7 @@ from uuid import uuid4
 from PIL.Image import Image
 
 # Internal libs
-from schema import Audio, Embedding, Metadata, SearchResult
+from schema import Audio, Citation, Embedding, Metadata, SearchResult
 from utils import pdftools
 
 
@@ -25,7 +25,7 @@ def make_texts(results: list[SearchResult]) -> list[str]:
 def make_images(results: list[SearchResult]) -> list[Image]:
     return [
         pdftools.convert_pdf_page_to_pil_image(
-            file_path=Path(result.payload["pdf_path"]),
+            file_path=Path(result.payload["path"]),
             page_num=result.payload["page"],
         )
         for result in results
@@ -35,20 +35,36 @@ def make_images(results: list[SearchResult]) -> list[Image]:
 
 def make_audios(results: list[SearchResult]) -> list[Audio]:
     return [
-        Audio(path=Path(result.payload["audio_path"]))
+        Audio(path=Path(result.payload["path"]))
         for result in results
         if result.payload.get("source") == "audio"
     ]
 
 
+def make_citations(results: list[SearchResult]) -> list[Citation]:
+    citations = []
+    for result in results:
+        payload = result.payload
+        source = payload.get("source", "unknown")
+        citations.append(
+            Citation(
+                source=source,
+                score=result.score,
+                page=payload.get("page"),
+                filename=payload.get("filename"),
+            )
+        )
+    return citations
+
+
 def make_text_metadatas(texts: list[str], path: Path) -> list[Metadata]:
     return [
         {
-            "page": page_id,
-            "pdf": path.name,
-            "pdf_path": str(path),
-            "source": "text",
             "text": text,
+            "page": page_id,
+            "filename": path.name,
+            "path": str(path),
+            "source": "text",
         }
         for page_id, text in enumerate(texts)
     ]
@@ -58,8 +74,8 @@ def make_image_metadatas(embeddings: list[Embedding], path: Path) -> list[Metada
     return [
         {
             "page": page_id,
-            "pdf": path.name,
-            "pdf_path": str(path),
+            "filename": path.name,
+            "path": str(path),
             "source": "image",
         }
         for page_id in range(len(embeddings))
@@ -69,8 +85,8 @@ def make_image_metadatas(embeddings: list[Embedding], path: Path) -> list[Metada
 def make_audio_metadatas(embeddings: list[Embedding], path: Path) -> list[Metadata]:
     return [
         {
-            "audio": path.name,
-            "audio_path": str(path),
+            "filename": path.name,
+            "path": str(path),
             "source": "audio",
         }
         for _ in range(len(embeddings))

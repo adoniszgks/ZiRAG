@@ -78,8 +78,8 @@ def build_aural_rag(client: QdrantClient, llm: GeminiLLM) -> AuralRAG:
 def build_zirag(client: QdrantClient, llm: GeminiLLM) -> ZiRAG:
     return ZiRAG(
         textual_rag=build_textual_rag(client, llm),
-        visual_rag=build_visual_rag(client, llm),
-        aural_rag=build_aural_rag(client, llm),
+        visual_rag=None,  # build_visual_rag(client, llm),
+        aural_rag=None,  # build_aural_rag(client, llm),
         llm=llm,
     )
 
@@ -90,21 +90,16 @@ class Main:
         client = QdrantClient(path=str(CACHE_DIR / "qdrant"))
 
         try:
-            ui = App(
-                textual_rag=build_textual_rag(client, llm),
-                visual_rag=build_visual_rag(client, llm),
-                aural_rag=build_aural_rag(client, llm),
-                llm=llm,
-            )
-            app = ui.build()
-            app.launch(
+            app = App(zirag=build_zirag(client, llm))
+            demo = app.build()
+            demo.launch(
                 server_name="0.0.0.0",
                 prevent_thread_lock=True,
-                theme=ui.theme,
-                css=ui.css,
+                theme=app.theme,
+                css=app.css,
             )
             webbrowser.open("http://127.0.0.1:7860/?__theme=dark")
-            app.block_thread()
+            demo.block_thread()
         finally:
             client.close()
 

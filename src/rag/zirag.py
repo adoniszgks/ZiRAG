@@ -7,7 +7,7 @@ from rag.generation.llm.gemini import GeminiLLM
 from rag.textual import TextualRAG
 from rag.visual import VisualRAG
 from schema import Context, Query, Response, SearchMode, SearchResult
-from utils.ragtools import make_audios, make_images, make_texts
+from utils.ragtools import make_audios, make_citations, make_images, make_texts
 
 
 class ZiRAG:
@@ -39,25 +39,39 @@ class ZiRAG:
         if self.aural_rag is not None:
             self.aural_rag.index(audio)
 
-    def search(self, query: Query, n_results: int = 10) -> list[SearchResult]:
-        texts_results, image_results, audio_results = [], [], []
-
-        if self.textual_rag is not None:
-            texts_results = self.textual_rag.search(SearchMode.SIM, query, n_results)
-        if self.visual_rag is not None:
-            image_results = self.visual_rag.search(query, n_results)
-        if self.aural_rag is not None:
-            audio_results = self.aural_rag.search(query, n_results)
-
-        return texts_results + image_results + audio_results
+    def search(
+        self,
+        query: Query,
+        n_results: int = 10,
+        use_textual: bool = True,
+        use_visual: bool = True,
+        use_aural: bool = True,
+    ) -> list[SearchResult]:
+        results = []
+        if self.textual_rag is not None and use_textual:
+            results += self.textual_rag.search(SearchMode.SIM, query, n_results)
+        if self.visual_rag is not None and use_visual:
+            results += self.visual_rag.search(query, n_results)
+        if self.aural_rag is not None and use_aural:
+            results += self.aural_rag.search(query, n_results)
+        return results
 
     def generate(
         self,
         query: Query,
         n_results: int = 3,
         language: str = "English",
+        use_textual: bool = True,
+        use_visual: bool = True,
+        use_aural: bool = True,
     ) -> Response:
-        results = self.search(query, n_results)
+        results = self.search(
+            query=query,
+            n_results=n_results,
+            use_textual=use_textual,
+            use_visual=use_visual,
+            use_aural=use_aural,
+        )
         texts = make_texts(results)
         images = make_images(results)
         audios = make_audios(results)
@@ -68,4 +82,6 @@ class ZiRAG:
             audios=audios,
             language=language,
         )
-        return self.llm.generate(context)
+        response = self.llm.generate(context)
+        response.citations = make_citations(results)
+        return response

@@ -7,29 +7,29 @@ from numpy import ndarray
 from PIL import Image as PILImage
 
 # Internal libs
-from rag.aural import AuralRAG
-from rag.generation.llm.gemini import GeminiLLM
-from rag.textual import TextualRAG
-from rag.visual import VisualRAG
 from rag.zirag import ZiRAG
-from schema import Audio, Query
+from schema import Audio, Query, Response
 
-_LANGUAGES = ["English", "German", "French", "Spanish", "Italian"]
+_LANGUAGES = ["English", "German", "French", "Spanish", "Italian", "Greek"]
 _TITLE = "# ZiRAG Multimodal Retrieval-Augmented Generation for technical documentation"
 
 
 class App:
-    def __init__(
-        self,
-        textual_rag: TextualRAG | None = None,
-        visual_rag: VisualRAG | None = None,
-        aural_rag: AuralRAG | None = None,
-        llm: GeminiLLM | None = None,
-    ) -> None:
-        self.textual_rag = textual_rag
-        self.visual_rag = visual_rag
-        self.aural_rag = aural_rag
-        self.llm = llm
+    def __init__(self, zirag: ZiRAG) -> None:
+        self.zirag = zirag
+
+    def _format(self, response: Response) -> str:
+        citations = "\n".join(
+            f"{index} | "
+            f"{citation.source:<5} | "
+            f"{citation.filename} | "
+            f"page {str(citation.page or '-'):>3} | "
+            f"score {citation.score:.3f}"
+            for index, citation in enumerate(response.citations)
+        )
+        if citations:
+            return f"{response.content or ''}\n\nRetrieved sources:\n{citations}"
+        return response.content or ""
 
     def _respond(
         self,
@@ -41,19 +41,19 @@ class App:
         use_aural: bool,
         language: str,
     ) -> str:
-        texts = [text] if text else None
-        images = [PILImage.fromarray(image)] if image is not None else None
-        audios = [Audio(path=Path(audio))] if audio else None
-
-        query = Query(texts=texts, images=images, audios=audios)
-        zirag = ZiRAG(
-            textual_rag=self.textual_rag if use_textual else None,
-            visual_rag=self.visual_rag if use_visual else None,
-            aural_rag=self.aural_rag if use_aural else None,
-            llm=self.llm,
+        query = Query(
+            texts=[text] if text else None,
+            images=[PILImage.fromarray(image)] if image is not None else None,
+            audios=[Audio(path=Path(audio))] if audio else None,
         )
-        response = zirag.generate(query=query, language=language)
-        return response.content or ""
+        response = self.zirag.generate(
+            query=query,
+            language=language,
+            use_textual=use_textual,
+            use_visual=use_visual,
+            use_aural=use_aural,
+        )
+        return self._format(response)
 
     @property
     def css(self) -> str:

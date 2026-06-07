@@ -38,6 +38,6 @@ class AuralRAG(BaseRAG):
 
     def generate(self, query: Query, n_results: int = 3) -> Response:
         results = self.search(query, n_results)
-        audios = [Audio(Path(result.payload["audio_path"])) for result in results]
+        audios = [Audio(Path(result.payload["path"])) for result in results]
         context = Context(query=query, audios=audios)
         return self.llm.generate(context)

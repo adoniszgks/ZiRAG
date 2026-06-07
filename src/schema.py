@@ -48,5 +48,14 @@ class Context:
 
 
 @dataclass
+class Citation:
+    source: str
+    score: float
+    page: int | None = None
+    filename: str | None = None
+
+
+@dataclass
 class Response:
     content: str | None
+    citations: list[Citation] = field(default_factory=list)

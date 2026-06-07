@@ -28,15 +28,33 @@ def _audio_to_part(audio: Audio) -> Part:
         return Part.from_bytes(data=audio_file.read(), mime_type=mime_type)
 
 
-def _make_parts(context: Context) -> list[Part]:
+def _queried_parts(context: Context) -> list[Part]:
     return [
         *(_texts_to_part(txt) for txt in (context.query.texts or [])),
         *(_image_to_part(img) for img in (context.query.images or [])),
         *(_audio_to_part(aud) for aud in (context.query.audios or [])),
-        *(_texts_to_part(txt) for txt in context.texts),
-        *(_image_to_part(img) for img in context.images),
-        *(_audio_to_part(aud) for aud in context.audios),
     ]
+
+
+def _retrieved_parts(context: Context) -> list[Part]:
+    parts = []
+    idx = 0
+    for txt in context.texts:
+        parts.append(_texts_to_part(f"[{idx}] {txt}"))
+        idx += 1
+    for img in context.images:
+        parts.append(_texts_to_part(f"[{idx}] Image:"))
+        parts.append(_image_to_part(img))
+        idx += 1
+    for aud in context.audios:
+        parts.append(_texts_to_part(f"[{idx}] Audio:"))
+        parts.append(_audio_to_part(aud))
+        idx += 1
+    return parts
+
+
+def _make_parts(context: Context) -> list[Part]:
+    return [*_queried_parts(context), *_retrieved_parts(context)]
 
 
 class GeminiLLM:
