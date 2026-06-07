@@ -78,8 +78,8 @@ def build_aural_rag(client: QdrantClient, llm: GeminiLLM) -> AuralRAG:
 def build_zirag(client: QdrantClient, llm: GeminiLLM) -> ZiRAG:
     return ZiRAG(
         textual_rag=build_textual_rag(client, llm),
-        visual_rag=None,  # build_visual_rag(client, llm),
-        aural_rag=None,  # build_aural_rag(client, llm),
+        visual_rag=build_visual_rag(client, llm),
+        aural_rag=build_aural_rag(client, llm),
         llm=llm,
     )
 

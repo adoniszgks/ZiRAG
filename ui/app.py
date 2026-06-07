@@ -23,7 +23,7 @@ class App:
             f"{index} | "
             f"{citation.source:<5} | "
             f"{citation.filename} | "
-            f"page {str(citation.page or '-'):>3} | "
+            f"page {str('-' if citation.page is None else citation.page):>3} | "
             f"score {citation.score:.3f}"
             for index, citation in enumerate(response.citations)
         )
@@ -71,7 +71,7 @@ class App:
             # RAG selection row
             with gr.Row():
                 with gr.Column(scale=1):
-                    use_textual = gr.Checkbox(label="Textual RAG", value=True)
+                    use_textual = gr.Checkbox(label="Textual RAG", value=False)
                 with gr.Column(scale=1):
                     use_visual = gr.Checkbox(label="Visual RAG", value=False)
                 with gr.Column(scale=1):
@@ -96,6 +96,8 @@ class App:
                         sources=["microphone", "upload"],
                         label="Audio query",
                         type="filepath",
+                        format="wav",
+                        streaming=False,
                         visible=False,
                         elem_id="audio-input",
                     )
