@@ -82,7 +82,7 @@ class App:
                 with gr.Column(scale=1):
                     text = gr.Textbox(
                         label="Text query",
-                        visible=True,
+                        visible=False,
                         elem_id="text-input",
                     )
                 with gr.Column(scale=1):
