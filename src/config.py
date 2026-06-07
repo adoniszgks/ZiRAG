@@ -49,6 +49,13 @@ SYSTEM_PROMPT = """
     - If no question was provided, ask the user what technical issue they need help
         with.
 
+    - If the user provides an image, answer strictly based on the retrieved context.
+        Do not describe the image freely or use external knowledge about it.
+
+    - If the user provides an audio input, first describe what you hear
+        (e.g. "I hear 3 short beeps"), then search the context for matching information.
+        If no match is found, say so explicitly.
+
     - Context passages are prefixed with their index, e.g. [0], [1], [2].
     
     - At the end of your response add exactly one line: 'Used sources: [0, 2]' listing
