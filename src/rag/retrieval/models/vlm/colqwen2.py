@@ -4,7 +4,7 @@ from pathlib import Path
 # 3rdparty libs
 from colpali_engine.models import ColQwen2, ColQwen2Processor
 from PIL.Image import Image
-from torch import Tensor, bfloat16, cat, no_grad
+from torch import Tensor, bfloat16, no_grad
 from transformers import BatchEncoding, BatchFeature
 from transformers.utils.import_utils import is_flash_attn_2_available as fta2_available
 
@@ -39,30 +39,19 @@ class ColQwen2Retriever:
         with no_grad():
             return self.model(**batch.to(self.model.device))
 
-    def embed_text(self, text: str) -> Tensor:
-        return self._embed(self.processor.process_texts([text]))
 
     def embed_images(self, images: list[Image]) -> Tensor:
         return self._embed(self.processor.process_images(images))
 
     def embed_query(self, query: Query) -> Tensor:
-        text = " ".join(query.texts) if query.texts else None
-        images = query.images
-        match (text, images):
-            case (None, None):
-                raise ValueError("Empty query.")
-            case (None, _):
-                return self.embed_images(images)
-            case (_, None):
-                return self.embed_text(text)
-
-        # TODO: support N images -- flatten [N, P, D] -> [1, N*P, D]
-        # before cat, audio queries are handled by AuralRAG, not here
-
-        # dim=1 concatenates token sequences; assumes batch_size=1 for both
-        return cat([self.embed_text(text), self.embed_images(images)], dim=1)
+        if not query.images:
+            raise ValueError("Empty query.")
+        return self.embed_images(query.images)
 
     def score(self, query: Query, passages: list[Image]) -> Tensor:
-        qs = self.embed_query(query)
-        ps = self.embed_images(passages)
-        return self.processor.score_multi_vector(qs=qs, ps=ps)
+        query_embeddings = self.embed_query(query)
+        passage_embeddings = self.embed_images(passages)
+        return self.processor.score_multi_vector(
+            qs=query_embeddings,
+            ps=passage_embeddings,
+        )
