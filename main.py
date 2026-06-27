@@ -96,13 +96,13 @@ class Main:
             app = App(zirag=zirag)
             demo = app.build()
 
-            api.mount(demo.app, zirag)
             demo.launch(
                 server_name="0.0.0.0",
                 prevent_thread_lock=True,
                 theme=app.theme,
                 css=app.css,
             )
+            api.mount(demo.server_app, zirag)
             webbrowser.open("http://127.0.0.1:7860/?__theme=dark")
             demo.block_thread()
         finally:
