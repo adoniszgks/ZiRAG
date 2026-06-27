@@ -6,6 +6,6 @@ from rag.zirag import ZiRAG
 
 
 def mount(app: FastAPI, zirag: ZiRAG) -> None:
-    @app.get("/api/retrieval-stats")
+    @app.get("/retrieval-stats")
     def retrieval_stats():
         return zirag.retrieval_log
