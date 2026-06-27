@@ -4,8 +4,6 @@ import webbrowser
 # 3rdparty libs
 from qdrant_client import QdrantClient
 
-import api
-
 # Internal libs
 from config import (
     AUDIO_EMB_DIM,
@@ -102,7 +100,6 @@ class Main:
                 theme=app.theme,
                 css=app.css,
             )
-            api.mount(demo.server_app, zirag)
             webbrowser.open("http://127.0.0.1:7860/?__theme=dark")
             demo.block_thread()
         finally:
