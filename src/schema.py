@@ -1,6 +1,5 @@
 # Standard libs
 from dataclasses import dataclass, field
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -12,15 +11,10 @@ Embeddings = list[Embedding]
 Metadata = dict[str, Any]
 
 
-class SearchMode(Enum):
-    BM25 = "keyword"
-    SIM = "similarity"
-    HYBRID = "hybrid"
-
 
 @dataclass
 class SearchResult:
-    key: str
+    document_id: str
     score: float
     payload: Metadata
 

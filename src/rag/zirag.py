@@ -6,7 +6,7 @@ from rag.aural import AuralRAG
 from rag.generation.llm.gemini import GeminiLLM
 from rag.textual import TextualRAG
 from rag.visual import VisualRAG
-from schema import Context, Query, Response, SearchMode, SearchResult
+from schema import Context, Query, Response, SearchResult
 from utils.ragtools import make_audios, make_citations, make_images, make_texts
 
 
@@ -22,6 +22,7 @@ class ZiRAG:
         self.visual_rag = visual_rag
         self.aural_rag = aural_rag
         self.llm = llm
+        self.retrieval_log: list[dict] = []
 
     def clear(self) -> None:
         if self.textual_rag is not None:
@@ -47,14 +48,19 @@ class ZiRAG:
         use_visual: bool = True,
         use_aural: bool = True,
     ) -> list[SearchResult]:
-        results = []
+        textual, visual, aural = [], [], []
         if self.textual_rag is not None and use_textual:
-            results += self.textual_rag.search(SearchMode.SIM, query, n_results)
+            textual = self.textual_rag.search(query, n_results)
         if self.visual_rag is not None and use_visual:
-            results += self.visual_rag.search(query, n_results)
+            visual = self.visual_rag.search(query, n_results)
         if self.aural_rag is not None and use_aural:
-            results += self.aural_rag.search(query, n_results)
-        return results
+            aural = self.aural_rag.search(query, n_results)
+        self.retrieval_log.append({
+            "textual": len(textual),
+            "visual": len(visual),
+            "aural": len(aural),
+        })
+        return textual + visual + aural
 
     def generate(
         self,
