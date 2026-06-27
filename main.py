@@ -4,6 +4,8 @@ import webbrowser
 # 3rdparty libs
 from qdrant_client import QdrantClient
 
+import api
+
 # Internal libs
 from config import (
     AUDIO_EMB_DIM,
@@ -90,8 +92,11 @@ class Main:
         client = QdrantClient(path=str(CACHE_DIR / "qdrant"))
 
         try:
-            app = App(zirag=build_zirag(client, llm))
+            zirag = build_zirag(client, llm)
+            app = App(zirag=zirag)
             demo = app.build()
+
+            api.mount(demo.app, zirag)
             demo.launch(
                 server_name="0.0.0.0",
                 prevent_thread_lock=True,
