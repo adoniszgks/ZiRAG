@@ -80,8 +80,8 @@ def build_aural_rag(client: QdrantClient, llm: GeminiLLM) -> AuralRAG:
 def build_mrag(client: QdrantClient, llm: GeminiLLM) -> MultimodalRAG:
     return MultimodalRAG(
         textual_rag=build_textual_rag(client, llm),
-        visual_rag=build_visual_rag(client, llm),
-        aural_rag=build_aural_rag(client, llm),
+        visual_rag=None,  # build_visual_rag(client, llm),
+        aural_rag=None,  # build_aural_rag(client, llm),
         llm=llm,
     )
 
@@ -101,6 +101,7 @@ class Main:
             if not only_ui:
                 llm = build_llm()
                 mrag = build_mrag(client, llm)
+            index_documents(mrag, [Path(PDF)])
             app = App(mrag)
             demo = app.build()
             demo.launch(

@@ -1,4 +1,5 @@
 # Standard libs
+import re
 from pathlib import Path
 
 # 3rdparty libs
@@ -12,6 +13,7 @@ from schema import Audio, Query, Response
 
 _LANGUAGES = ["English", "German", "French", "Spanish", "Italian", "Greek"]
 _TITLE = "# Multimodal RAG for technical documentation"
+_USED_SOURCES_PATTERN = re.compile(r"^Used sources:\s*(.+)$", re.MULTILINE)
 
 
 class App:
@@ -19,17 +21,26 @@ class App:
         self.mrag = mrag
 
     def _format(self, response: Response) -> str:
-        citations = "\n".join(
-            f"{index} | "
-            f"{citation.source:<5} | "
-            f"{citation.filename} | "
-            f"page {str('-' if citation.page is None else citation.page):>3} | "
-            f"score {citation.score:.3f}"
+        content = re.sub(r"\n+", "\n\n", response.content or "")
+        match = _USED_SOURCES_PATTERN.search(content)
+        if match:
+            content = _USED_SOURCES_PATTERN.sub("", content).rstrip()
+            content += f"\n\n**Used sources:** {match.group(1)}"
+        if not response.citations:
+            return content
+        rows = "\n".join(
+            f"| {index} "
+            f"| {citation.source} "
+            f"| {citation.filename} "
+            f"| {'-' if citation.page is None else citation.page} "
+            f"| {citation.score:.3f} |"
             for index, citation in enumerate(response.citations)
         )
-        if citations:
-            return f"{response.content or ''}\n\nRetrieved sources:\n{citations}"
-        return response.content or ""
+        table = (
+            "| # | Source | File | Page | Score |\n"
+            "|---|--------|------|------|-------|\n" + rows
+        )
+        return f"{content}\n\n**Retrieved content:**\n\n{table}"
 
     def _respond(
         self,
@@ -108,7 +119,12 @@ class App:
                 value="German",
                 label="Response language",
             )
-            output = gr.Textbox(label="Response", elem_id="response-box")
+            gr.Markdown("#### Response", elem_id="response-heading")
+            output = gr.Markdown(
+                container=True,
+                padding=True,
+                elem_id="response-box",
+            )
             button = gr.Button("Search", elem_id="search-btn", variant="primary")
 
             use_textual.change(lambda x: gr.update(visible=x), use_textual, text)

@@ -78,9 +78,18 @@
     font-weight: 600 !important;
 }
 
+/* Response heading */
+#response-heading h4 {
+    color: #64748B !important;
+}
+
 /* Response box */
-#response-box textarea {
+#response-box {
     font-size: 1.05rem !important;
-    min-height: 220px !important;
     line-height: 1.6 !important;
+    min-height: 220px !important;
+    border: 1px solid var(--border-color-primary) !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--background-fill-secondary) !important;
+    padding: 1rem !important;
 }

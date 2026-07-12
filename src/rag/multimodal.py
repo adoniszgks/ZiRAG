@@ -7,7 +7,13 @@ from rag.generation.llm.gemini import GeminiLLM
 from rag.textual import TextualRAG
 from rag.visual import VisualRAG
 from schema import Context, Query, Response, SearchResult
-from utils.ragtools import make_audios, make_citations, make_images, make_texts
+from utils.ragtools import (
+    make_audios,
+    make_citations,
+    make_images,
+    make_log,
+    make_texts,
+)
 
 
 class MultimodalRAG:
@@ -55,11 +61,7 @@ class MultimodalRAG:
             visual = self.visual_rag.search(query, n_results)
         if self.aural_rag is not None and use_aural:
             aural = self.aural_rag.search(query, n_results)
-        self.retrieval_log.append({
-            "textual": len(textual),
-            "visual": len(visual),
-            "aural": len(aural),
-        })
+        self.retrieval_log.append(make_log(query, textual, visual, aural))
         return textual + visual + aural
 
     def generate(
