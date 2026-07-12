@@ -34,7 +34,7 @@ def build_llm(model: str = LLM_MODEL, system_prompt: str = SYSTEM_PROMPT) -> Gem
     return GeminiLLM(
         api_key=LLM_API_KEY,
         model=model,
-        system_instruction=system_prompt,
+        system_prompt=system_prompt,
     )
 
 
