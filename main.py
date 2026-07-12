@@ -30,11 +30,11 @@ from vectorstore.qdrant import QdrantIndexer
 PDF = DATA_DIR / "jur-imp_f5_f50_f505_de.pdf"
 
 
-def build_llm() -> GeminiLLM:
+def build_llm(model: str = LLM_MODEL, system_prompt: str = SYSTEM_PROMPT) -> GeminiLLM:
     return GeminiLLM(
         api_key=LLM_API_KEY,
-        model=LLM_MODEL,
-        system_instruction=SYSTEM_PROMPT,
+        model=model,
+        system_instruction=system_prompt,
     )
 
 
@@ -101,7 +101,8 @@ class Main:
             if not only_ui:
                 llm = build_llm()
                 mrag = build_mrag(client, llm)
-            index_documents(mrag, [Path(PDF)])
+                paths = [Path(PDF)]
+                index_documents(mrag, paths)
 
             app = App(mrag)
             demo = app.build()

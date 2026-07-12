@@ -62,11 +62,11 @@ class GeminiLLM:
         self,
         api_key: str | None = None,
         model: str | None = None,
-        system_instruction: str | None = None,
+        system_prompt: str | None = None,
     ) -> None:
         self.model = model
         self.client = genai.Client(api_key=api_key)
-        self.system_instruction = system_instruction
+        self.system_instruction = system_prompt
 
     def generate(self, context: Context) -> Response:
         parts = _make_parts(context)
@@ -77,9 +77,12 @@ class GeminiLLM:
         if context.language and context.language != "English":
             system_instruction += f"\nAlways respond in {context.language}."
         config = GenerateContentConfig(system_instruction=system_instruction or None)
-        content = self.client.models.generate_content(
-            model=self.model,
-            contents=content,
-            config=config,
-        ).text or ""
+        content = (
+            self.client.models.generate_content(
+                model=self.model,
+                contents=content,
+                config=config,
+            ).text
+            or ""
+        )
         return Response(content=content)
