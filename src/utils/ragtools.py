@@ -46,11 +46,12 @@ def make_citations(results: list[SearchResult]) -> list[Citation]:
     for result in results:
         payload = result.payload
         source = payload.get("source", "unknown")
+        page = payload.get("page")
         citations.append(
             Citation(
                 source=source,
                 score=result.score,
-                page=payload.get("page"),
+                page=page + 1 if page is not None else None,
                 filename=payload.get("filename"),
             )
         )

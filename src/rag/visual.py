@@ -33,7 +33,7 @@ class VisualRAG(BaseRAG):
         self.indexer.add(embeddings=embeddings, ids=ids, metadatas=metadatas)
 
     def search(self, query: Query, n_results: int = 10) -> list[SearchResult]:
-        if not query.texts and not query.images:
+        if not query.images:
             return []
         query_embeddings = self.retriever.embed_query(query)[0].tolist()
         return self.indexer.search(query_embeddings, n_results)

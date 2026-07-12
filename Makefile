@@ -10,5 +10,8 @@ install:
 test:
 	uv run python -m pytest tests -s
 
-run:
+ui:
+	uv run python main.py --ui-only
+
+up:
 	uv run python main.py

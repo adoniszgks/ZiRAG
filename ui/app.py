@@ -3,20 +3,20 @@ from pathlib import Path
 
 # 3rdparty libs
 import gradio as gr
-from numpy import ndarray
+import numpy as np
 from PIL import Image as PILImage
 
 # Internal libs
-from rag.zirag import ZiRAG
+from rag.multimodal import MultimodalRAG
 from schema import Audio, Query, Response
 
 _LANGUAGES = ["English", "German", "French", "Spanish", "Italian", "Greek"]
-_TITLE = "# ZiRAG Multimodal Retrieval-Augmented Generation for technical documentation"
+_TITLE = "# Multimodal RAG for technical documentation"
 
 
 class App:
-    def __init__(self, zirag: ZiRAG) -> None:
-        self.zirag = zirag
+    def __init__(self, mrag: MultimodalRAG) -> None:
+        self.mrag = mrag
 
     def _format(self, response: Response) -> str:
         citations = "\n".join(
@@ -34,7 +34,7 @@ class App:
     def _respond(
         self,
         text: str,
-        image: ndarray | None,
+        image: np.ndarray | None,
         audio: str | None,
         use_textual: bool,
         use_visual: bool,
@@ -46,7 +46,7 @@ class App:
             images=[PILImage.fromarray(image)] if image is not None else None,
             audios=[Audio(path=Path(audio))] if audio else None,
         )
-        response = self.zirag.generate(
+        response = self.mrag.generate(
             query=query,
             language=language,
             use_textual=use_textual,
@@ -71,24 +71,24 @@ class App:
             # RAG selection row
             with gr.Row():
                 with gr.Column(scale=1):
-                    use_textual = gr.Checkbox(label="Textual RAG", value=False)
+                    use_textual = gr.Checkbox(label="Textual RAG", value=True)
                 with gr.Column(scale=1):
-                    use_visual = gr.Checkbox(label="Visual RAG", value=False)
+                    use_visual = gr.Checkbox(label="Visual RAG", value=True)
                 with gr.Column(scale=1):
-                    use_aural = gr.Checkbox(label="Aural RAG", value=False)
+                    use_aural = gr.Checkbox(label="Aural RAG", value=True)
 
             # Input row
             with gr.Row():
                 with gr.Column(scale=1):
                     text = gr.Textbox(
                         label="Text query",
-                        visible=False,
+                        visible=True,
                         elem_id="text-input",
                     )
                 with gr.Column(scale=1):
                     image = gr.Image(
                         label="Image query",
-                        visible=False,
+                        visible=True,
                         elem_id="image-input",
                     )
                 with gr.Column(scale=1):
@@ -98,14 +98,14 @@ class App:
                         type="filepath",
                         format="wav",
                         streaming=False,
-                        visible=False,
+                        visible=True,
                         elem_id="audio-input",
                     )
 
             # Response row
             language = gr.Dropdown(
                 choices=_LANGUAGES,
-                value="English",
+                value="German",
                 label="Response language",
             )
             output = gr.Textbox(label="Response", elem_id="response-box")

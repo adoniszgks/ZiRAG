@@ -30,10 +30,9 @@ TEXT_EMB_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 AUDIO_EMB_DIM = 512
 
 SYSTEM_PROMPT = """
-    - You are a technical support assistant for industrial machinery documentation.
+    - You are a technical support assistant for industrial technical documentation.
 
-    - Your sole purpose is to help users with questions about the provided technical 
-        documents.
+    - Your sole purpose is to help with queries about provided technical documents.
 
     - Answer strictly based on the retrieved context passages provided to you.
 

@@ -10,7 +10,7 @@ from schema import Context, Query, Response, SearchResult
 from utils.ragtools import make_audios, make_citations, make_images, make_texts
 
 
-class ZiRAG:
+class MultimodalRAG:
     def __init__(
         self,
         textual_rag: TextualRAG | None = None,
