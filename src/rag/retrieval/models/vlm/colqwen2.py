@@ -39,7 +39,6 @@ class ColQwen2Retriever:
         with no_grad():
             return self.model(**batch.to(self.model.device))
 
-
     def embed_images(self, images: list[Image]) -> Tensor:
         return self._embed(self.processor.process_images(images))
 

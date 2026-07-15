@@ -113,18 +113,22 @@ class App:
                         elem_id="audio-input",
                     )
 
-            # Response row
+            # Response langauge
             language = gr.Dropdown(
                 choices=_LANGUAGES,
                 value="German",
                 label="Response language",
             )
+
+            # Response
             gr.Markdown("#### Response", elem_id="response-heading")
             output = gr.Markdown(
                 container=True,
                 padding=True,
                 elem_id="response-box",
             )
+
+            # Search button
             button = gr.Button("Search", elem_id="search-btn", variant="primary")
 
             use_textual.change(lambda x: gr.update(visible=x), use_textual, text)

@@ -1,4 +1,4 @@
-/* Base font size — exclude headings so they keep their natural size */
+/* Base font size -- exclude headings so they keep their natural size */
 .gradio-container p,
 .gradio-container span,
 .gradio-container label,
@@ -38,7 +38,7 @@
     font-weight: 600 !important;
 }
 
-/* Query inputs — same height across all three columns */
+/* Query inputs -- same height across all three columns */
 #text-input,
 #image-input,
 #audio-input {
@@ -61,7 +61,7 @@
     min-width: 80% !important;
 }
 
-/* Playback speed button — big enough to contain "0.5x" without overflow */
+/* Playback speed button -- big enough to contain "0.5x" without overflow */
 #audio-input [class*="playback"],
 #audio-input [aria-label*="playback speed"] {
     min-width: 3.2rem !important;

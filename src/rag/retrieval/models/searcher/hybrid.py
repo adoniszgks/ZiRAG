@@ -29,12 +29,12 @@ def rrf(
         similarity_score = 1.0 / (eta + rank_similarity) if rank_similarity else 0.0
         scores[document_id] = lexical_score + similarity_score
 
-    ranked_results = sorted(scores, key=scores.get, reverse=True)
+    top_n = sorted(scores, key=scores.get, reverse=True)
     return [
         SearchResult(
-            document_id=document_id,
-            score=scores[document_id],
-            payload=payloads[document_id],
+            document_id=n,
+            score=scores[n],
+            payload=payloads[n],
         )
-        for document_id in ranked_results[:n_results]
+        for n in top_n[:n_results]
     ]

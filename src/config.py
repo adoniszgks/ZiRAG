@@ -48,6 +48,6 @@ SYSTEM_PROMPT = """
     context is insufficient or unsuitable, state this explicitly. Ask a clarifying
     question only if the input contains no unambiguous technical issue.
 
-- End every response with exactly one line: 'Used sources: [0, 2]' listing the indices
-    actually used in ascending order, or 'Used sources: None' if none.
+- End every response with exactly one line: For example: 'Used sources: [0, 2]' listing 
+    the indices actually used in ascending order, or 'Used sources: None' if none.
 """.strip()

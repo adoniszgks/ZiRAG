@@ -17,13 +17,13 @@ from config import (
 )
 from rag.aural import AuralRAG
 from rag.generation.llm.gemini import GeminiLLM
+from rag.multimodal import MultimodalRAG
 from rag.retrieval.models.embedder.audio_embedder import AudioEmbedder
 from rag.retrieval.models.embedder.text_embedder import TextEmbedder
 from rag.retrieval.models.searcher.bm25 import BM25Searcher
 from rag.retrieval.models.vlm.colqwen2 import ColQwen2Retriever
 from rag.textual import TextualRAG
 from rag.visual import VisualRAG
-from rag.multimodal import MultimodalRAG
 from ui.app import App
 from vectorstore.qdrant import QdrantIndexer
 

@@ -30,17 +30,13 @@ class BM25Searcher:
             return []
 
         scores = self.bm25.get_scores(" ".join(query.texts or []).lower().split())
-        top_k = sorted(
-            range(len(scores)),
-            key=lambda idx: scores[idx],
-            reverse=True,
-        )[:n_results]
+        top_n = sorted(range(len(scores)), key=lambda idx: scores[idx], reverse=True)
 
         return [
             SearchResult(
-                document_id=self.ids[k],
-                score=float(scores[k]),
-                payload=self.metadatas[k],
+                document_id=self.ids[n],
+                score=float(scores[n]),
+                payload=self.metadatas[n],
             )
-            for k in top_k
+            for n in top_n[:n_results]
         ]
