@@ -74,7 +74,7 @@ class GeminiLLM:
             parts = [Part.from_text(text="[no input provided]")]
         content = Content(parts=parts, role="user")
         system_instruction = self.system_instruction or ""
-        if context.language and context.language != "English":
+        if context.language:
             system_instruction += f"\nAlways respond in {context.language}."
         config = GenerateContentConfig(system_instruction=system_instruction or None)
         content = (
