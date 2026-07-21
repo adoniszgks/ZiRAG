@@ -75,7 +75,11 @@ class GeminiLLM:
         content = Content(parts=parts, role="user")
         system_instruction = self.system_instruction or ""
         if context.language:
-            system_instruction += f"\nAlways respond in {context.language}."
+            system_instruction += (
+                f"\nThe user explicitly selected {context.language} as the response "
+                f"language. Respond only in {context.language}, regardless of the "
+                "language used in the query or the retrieved context."
+            )
         config = GenerateContentConfig(system_instruction=system_instruction or None)
         content = (
             self.client.models.generate_content(
