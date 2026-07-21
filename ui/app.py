@@ -17,7 +17,7 @@ _USED_SOURCES_PATTERN = re.compile(r"^Used sources:\s*(.+)$", re.MULTILINE)
 
 
 class App:
-    def __init__(self, mrag: MultimodalRAG) -> None:
+    def __init__(self, mrag: MultimodalRAG | None = None) -> None:
         self.mrag = mrag
 
     def _format(self, response: Response) -> str:
@@ -95,6 +95,7 @@ class App:
                         label="Text query",
                         visible=True,
                         elem_id="text-input",
+                        html_attributes=gr.InputHTMLAttributes(spellcheck=False),
                     )
                 with gr.Column(scale=1):
                     image = gr.Image(

@@ -112,7 +112,7 @@ class Main:
                 theme=app.theme,
                 css=app.css,
             )
-            webbrowser.open("http://127.0.0.1:7860/")
+            webbrowser.open("http://127.0.0.1:7860/?__theme=light")
             demo.block_thread()
         finally:
             client.close()

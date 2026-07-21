@@ -20,8 +20,10 @@ def rrf(
     similarity_ranks = _ranks(similarity_results)
     payloads = _payloads(lexical_results) | _payloads(similarity_results)
 
+    document_ids = set(lexical_ranks) | set(similarity_ranks)
+
     scores: dict[str, float] = {}
-    for document_id in set(lexical_ranks) | set(similarity_ranks):
+    for document_id in document_ids:
         rank_lexical = lexical_ranks.get(document_id)
         rank_similarity = similarity_ranks.get(document_id)
 
@@ -29,7 +31,18 @@ def rrf(
         similarity_score = 1.0 / (eta + rank_similarity) if rank_similarity else 0.0
         scores[document_id] = lexical_score + similarity_score
 
-    top_n = sorted(scores, key=scores.get, reverse=True)
+    def ranking_key(document_id: str) -> tuple:
+        payload = payloads[document_id]
+        page = payload.get("page")
+        page_key = page if isinstance(page, int) else 10**9
+        return (
+            -scores[document_id],
+            str(payload.get("filename", "")),
+            page_key,
+            document_id,
+        )
+
+    top_n = sorted(document_ids, key=ranking_key)
     return [
         SearchResult(
             document_id=n,

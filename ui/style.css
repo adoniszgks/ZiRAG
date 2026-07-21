@@ -48,6 +48,10 @@
     height: 100% !important;
     resize: none !important;
 }
+.input-container.svelte-1hguek3 {
+    resize: vertical;
+    overflow: auto;
+}
 
 /* Stop button in audio recorder */
 #audio-input [class*="stop-button"] {
