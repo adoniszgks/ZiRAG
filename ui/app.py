@@ -28,17 +28,21 @@ class App:
             content += f"\n\n**Used sources:** {match.group(1)}"
         if not response.citations:
             return content
-        rows = "\n".join(
-            f"| {index} "
-            f"| {citation.source} "
-            f"| {citation.filename} "
-            f"| {'-' if citation.page is None else citation.page} "
-            f"| {citation.score:.3f} |"
-            for index, citation in enumerate(response.citations)
-        )
+        ranks: dict[str, int] = {}
+        rows = []
+        for index, citation in enumerate(response.citations):
+            ranks[citation.source] = ranks.get(citation.source, 0) + 1
+            rows.append(
+                f"| {index} "
+                f"| {ranks[citation.source]} "
+                f"| {citation.source} "
+                f"| {citation.filename} "
+                f"| {'-' if citation.page is None else citation.page} "
+                f"| {citation.score:.3f} |"
+            )
         table = (
-            "| # | Source | File | Page | Score |\n"
-            "|---|--------|------|------|-------|\n" + rows
+            "| ID | Rank | Source | File | Page | Score |\n"
+            "|---|------|--------|------|------|-------|\n" + "\n".join(rows)
         )
         return f"{content}\n\n**Retrieved content:**\n\n{table}"
 
