@@ -10,7 +10,6 @@ from transformers.utils.import_utils import is_flash_attn_2_available as fta2_av
 
 # Internal libs
 from config import CACHE_DIR
-from schema import Query
 
 
 class ColQwen2Retriever:
@@ -39,18 +38,12 @@ class ColQwen2Retriever:
         with no_grad():
             return self.model(**batch.to(self.model.device))
 
-    def embed_images(self, images: list[Image]) -> Tensor:
-        return self._embed(self.processor.process_images(images))
+    def embed_texts(self, texts: list[str]) -> Tensor | None:
+        if texts:
+            return self._embed(self.processor.process_texts(texts))
+        return None
 
-    def embed_query(self, query: Query) -> Tensor:
-        if not query.images:
-            raise ValueError("Empty query.")
-        return self.embed_images(query.images)
-
-    def score(self, query: Query, passages: list[Image]) -> Tensor:
-        query_embeddings = self.embed_query(query)
-        passage_embeddings = self.embed_images(passages)
-        return self.processor.score_multi_vector(
-            qs=query_embeddings,
-            ps=passage_embeddings,
-        )
+    def embed_images(self, images: list[Image]) -> Tensor | None:
+        if images:
+            return self._embed(self.processor.process_images(images))
+        return None

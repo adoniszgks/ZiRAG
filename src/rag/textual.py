@@ -26,13 +26,13 @@ class TextualRAG(BaseRAG):
         self.embedder = embedder
         self.llm = llm
 
-    def index(self, text_path: Path | None) -> None:
-        if not text_path:
+    def index(self, file_path: Path | None) -> None:
+        if not file_path:
             return
-        texts = extract_pdf_texts(text_path)
+        texts = extract_pdf_texts(file_path)
         embeddings = self.embedder.embed(texts)
         ids = make_ids(texts)
-        metadatas = make_text_metadatas(texts, text_path)
+        metadatas = make_text_metadatas(texts, file_path)
         self.indexer.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
         self.bm25.index(ids=ids, documents=texts, metadatas=metadatas)
 
