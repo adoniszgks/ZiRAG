@@ -37,7 +37,6 @@ class Context:
     query: Query
     texts: list[str] = field(default_factory=list)
     images: list[Image] = field(default_factory=list)
-    audios: list[Audio] = field(default_factory=list)
     language: str = "English"
 
 

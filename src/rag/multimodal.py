@@ -8,7 +8,6 @@ from rag.textual import TextualRAG
 from rag.visual import VisualRAG
 from schema import Context, Query, Response, SearchResult
 from utils.ragtools import (
-    make_audios,
     make_citations,
     make_images,
     make_log,
@@ -49,7 +48,7 @@ class MultimodalRAG:
     def search(
         self,
         query: Query,
-        n_results: int = 10,
+        n_results: int,
         use_textual: bool = True,
         use_visual: bool = True,
         use_aural: bool = True,
@@ -82,12 +81,10 @@ class MultimodalRAG:
         )
         texts = make_texts(results)
         images = make_images(results)
-        audios = make_audios(results)
         context = Context(
             query=query,
             texts=texts,
             images=images,
-            audios=audios,
             language=language,
         )
         response = self.llm.generate(context)

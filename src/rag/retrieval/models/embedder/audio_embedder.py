@@ -1,16 +1,13 @@
-# Standard libs
-from pathlib import Path
-
 # Internal libs
 from schema import Embedding
 
 
 class AudioEmbedder:
-    def __init__(self, enable_fusion: bool = False, ckpt: Path | None = None) -> None:
+    def __init__(self, enable_fusion: bool = False) -> None:
         import laion_clap as clap  # lazy import
 
         self.model = clap.CLAP_Module(enable_fusion=enable_fusion)
-        self.model.load_ckpt(ckpt=str(ckpt) if ckpt else None)
+        self.model.load_ckpt()
 
     def embed_text(self, texts: list[str]) -> list[Embedding] | None:
         if texts:

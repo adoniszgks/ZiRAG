@@ -17,7 +17,7 @@ class BaseIndexer(ABC):
     def search(
         self,
         query_embeddings: list[Embedding] | list[Embeddings] | str,
-        n_results: int = 10,
+        n_results: int,
     ) -> list[SearchResult]: ...
 
     @abstractmethod

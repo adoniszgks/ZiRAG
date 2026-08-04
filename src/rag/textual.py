@@ -36,7 +36,7 @@ class TextualRAG(BaseRAG):
         self.indexer.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
         self.bm25.index(ids=ids, documents=texts, metadatas=metadatas)
 
-    def search(self, query: Query, n_results: int = 10) -> list[SearchResult]:
+    def search(self, query: Query, n_results: int) -> list[SearchResult]:
         if not query.texts:
             return []
         lexical_results = self.bm25.search(query, n_results)
@@ -44,7 +44,7 @@ class TextualRAG(BaseRAG):
         similarity_results = self.indexer.search(query_embeddings, n_results)
         return rrf(lexical_results, similarity_results, n_results)
 
-    def generate(self, query: Query, n_results: int = 3) -> Response:
+    def generate(self, query: Query, n_results: int) -> Response:
         results = self.search(query=query, n_results=n_results)
         texts = [result.payload.get("text", "") for result in results]
         context = Context(query=query, texts=texts, images=[])

@@ -39,16 +39,15 @@ class VisualRAG(BaseRAG):
         ids = make_ids(embeddings)
         metadatas = make_text_metadatas(texts, file_path)
         metadatas += make_image_metadatas(image_embeddings, file_path)
-
         self.indexer.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
 
-    def search(self, query: Query, n_results: int = 10) -> list[SearchResult]:
+    def search(self, query: Query, n_results: int) -> list[SearchResult]:
         if not query.images:
             return []
         query_embeddings = self.retriever.embed_images(query.images)[0].tolist()
         return self.indexer.search(query_embeddings, n_results)
 
-    def generate(self, query: Query, n_results: int = 3) -> Response:
+    def generate(self, query: Query, n_results: int) -> Response:
         results = self.search(query, n_results)
         texts = make_texts(results)
         images = make_images(results)

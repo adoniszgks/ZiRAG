@@ -6,7 +6,7 @@ from uuid import uuid4
 from PIL.Image import Image
 
 # Internal libs
-from schema import Audio, Citation, Embedding, Metadata, Query, SearchResult
+from schema import Citation, Embedding, Metadata, Query, SearchResult
 from utils import pdftools
 
 
@@ -30,14 +30,6 @@ def make_images(results: list[SearchResult]) -> list[Image]:
         )
         for result in results
         if result.payload.get("source") == "image"
-    ]
-
-
-def make_audios(results: list[SearchResult]) -> list[Audio]:
-    return [
-        Audio(path=Path(result.payload["path"]))
-        for result in results
-        if result.payload.get("source") == "audio"
     ]
 
 

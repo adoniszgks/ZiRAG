@@ -19,9 +19,9 @@ class QdrantIndexer(BaseIndexer):
     def __init__(
         self,
         client: QdrantClient,
-        collection_name: str = "zirag",
-        vector_size: int = 128,
-        is_multivector: bool = True,
+        collection_name: str,
+        vector_size: int,
+        is_multivector: bool,
     ) -> None:
         self.collection_name = collection_name
         self.client = client
@@ -61,7 +61,7 @@ class QdrantIndexer(BaseIndexer):
     def search(
         self,
         query_embeddings: list[Embedding],
-        n_results: int = 10,
+        n_results: int,
     ) -> list[SearchResult]:
         response = self.client.query_points(
             collection_name=self.collection_name,

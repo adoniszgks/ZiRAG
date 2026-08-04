@@ -46,10 +46,6 @@ def _retrieved_parts(context: Context) -> list[Part]:
         parts.append(_texts_to_part(f"[{idx}] Image:"))
         parts.append(_image_to_part(img))
         idx += 1
-    for aud in context.audios:
-        parts.append(_texts_to_part(f"[{idx}] Audio:"))
-        parts.append(_audio_to_part(aud))
-        idx += 1
     return parts
 
 
@@ -72,7 +68,7 @@ class GeminiLLM:
         parts = _make_parts(context)
         if not parts:
             parts = [Part.from_text(text="[no input provided]")]
-        content = Content(parts=parts, role="user")
+        contents = Content(parts=parts, role="user")
         system_instruction = self.system_instruction or ""
         if context.language:
             system_instruction += (
@@ -84,7 +80,7 @@ class GeminiLLM:
         content = (
             self.client.models.generate_content(
                 model=self.model,
-                contents=content,
+                contents=contents,
                 config=config,
             ).text
             or ""

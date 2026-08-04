@@ -12,20 +12,20 @@ def _payloads(results: list[SearchResult]) -> dict[str, dict]:
 
 def rrf(
     lexical_results: list[SearchResult],
-    similarity_results: list[SearchResult],
+    semantic_results: list[SearchResult],
     n_results: int,
     eta: int = 60,
 ) -> list[SearchResult]:
     lexical_ranks = _ranks(lexical_results)
-    similarity_ranks = _ranks(similarity_results)
-    payloads = _payloads(lexical_results) | _payloads(similarity_results)
+    semantic_ranks = _ranks(semantic_results)
+    payloads = _payloads(lexical_results) | _payloads(semantic_results)
 
-    document_ids = set(lexical_ranks) | set(similarity_ranks)
+    document_ids = set(lexical_ranks) | set(semantic_ranks)
 
     scores: dict[str, float] = {}
     for document_id in document_ids:
         rank_lexical = lexical_ranks.get(document_id)
-        rank_similarity = similarity_ranks.get(document_id)
+        rank_similarity = semantic_ranks.get(document_id)
 
         lexical_score = 1.0 / (eta + rank_lexical) if rank_lexical else 0.0
         similarity_score = 1.0 / (eta + rank_similarity) if rank_similarity else 0.0
@@ -45,9 +45,9 @@ def rrf(
     top_n = sorted(document_ids, key=ranking_key)
     return [
         SearchResult(
-            document_id=n,
-            score=scores[n],
-            payload=payloads[n],
+            document_id=document_id,
+            score=scores[document_id],
+            payload=payloads[document_id],
         )
-        for n in top_n[:n_results]
+        for document_id in top_n[:n_results]
     ]
