@@ -5,8 +5,9 @@ from pathlib import Path
 from rag.base import BaseRAG
 from rag.generation.llm.gemini import GeminiLLM
 from rag.retrieval.models.embedder.audio_embedder import AudioEmbedder
-from schema import Audio, Context, Query, Response, SearchResult
-from utils.ragtools import make_audio_metadatas, make_ids
+from schema import Context, Query, Response, SearchResult
+from utils.pdftools import extract_pdf_texts
+from utils.ragtools import make_ids, make_text_metadatas, make_texts
 from vectorstore.base import BaseIndexer
 
 
@@ -21,23 +22,23 @@ class AuralRAG(BaseRAG):
         self.embedder = embedder
         self.llm = llm
 
-    def index(self, audio_path: Path | None) -> None:
-        if not audio_path:
+    def index(self, file_path: Path | None) -> None:
+        if not file_path:
             return
-        embeddings = self.embedder.embed([str(audio_path)])
+        texts = extract_pdf_texts(file_path)
+        embeddings = self.embedder.embed_text(texts)
         ids = make_ids(embeddings)
-        metadatas = make_audio_metadatas(embeddings, audio_path)
+        metadatas = make_text_metadatas(texts, file_path)
         self.indexer.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
 
     def search(self, query: Query, n_results: int = 5) -> list[SearchResult]:
         if not query.audios:
             return []
         paths = [str(audio.path) for audio in query.audios]
-        query_embeddings = self.embedder.embed(paths)
+        query_embeddings = self.embedder.embed_audio(paths)
         return self.indexer.search(query_embeddings, n_results)
 
     def generate(self, query: Query, n_results: int = 3) -> Response:
         results = self.search(query, n_results)
-        audios = [Audio(Path(result.payload["path"])) for result in results]
-        context = Context(query=query, audios=audios)
+        context = Context(query=query, texts=make_texts(results))
         return self.llm.generate(context)

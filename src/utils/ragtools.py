@@ -93,33 +93,22 @@ def make_text_metadatas(texts: list[str], path: Path) -> list[Metadata]:
     return [
         {
             "text": text,
-            "page": page_id,
+            "page": page_num,
             "filename": path.name,
             "path": str(path),
             "source": "text",
         }
-        for page_id, text in enumerate(texts)
+        for page_num, text in enumerate(texts)
     ]
 
 
 def make_image_metadatas(embeddings: list[Embedding], path: Path) -> list[Metadata]:
     return [
         {
-            "page": page_id,
+            "page": page_num,
             "filename": path.name,
             "path": str(path),
             "source": "image",
         }
-        for page_id in range(len(embeddings))
-    ]
-
-
-def make_audio_metadatas(embeddings: list[Embedding], path: Path) -> list[Metadata]:
-    return [
-        {
-            "filename": path.name,
-            "path": str(path),
-            "source": "audio",
-        }
-        for _ in range(len(embeddings))
+        for page_num in range(len(embeddings))
     ]

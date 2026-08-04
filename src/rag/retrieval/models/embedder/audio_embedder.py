@@ -12,5 +12,12 @@ class AudioEmbedder:
         self.model = clap.CLAP_Module(enable_fusion=enable_fusion)
         self.model.load_ckpt(ckpt=str(ckpt) if ckpt else None)
 
-    def embed(self, paths: list[str], use_tensor: bool = False) -> list[Embedding]:
-        return self.model.get_audio_embedding_from_filelist(paths, use_tensor).tolist()
+    def embed_text(self, texts: list[str]) -> list[Embedding] | None:
+        if texts:
+            return self.model.get_text_embedding(texts).tolist()
+        return None
+
+    def embed_audio(self, audios: list[str]) -> list[Embedding] | None:
+        if audios:
+            return self.model.get_audio_embedding_from_filelist(audios).tolist()
+        return None
