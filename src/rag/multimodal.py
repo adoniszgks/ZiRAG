@@ -12,6 +12,7 @@ from utils.ragtools import (
     make_images,
     make_log,
     make_texts,
+    sort_by_modality,
 )
 
 
@@ -61,7 +62,7 @@ class MultimodalRAG:
         if self.aural_rag is not None and use_aural:
             aural = self.aural_rag.search(query, n_results)
         self.retrieval_log.append(make_log(query, textual, visual, aural))
-        return textual + visual + aural
+        return sort_by_modality(textual + visual + aural)
 
     def generate(
         self,

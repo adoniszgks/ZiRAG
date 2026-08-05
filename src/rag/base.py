@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 
 # Internal libs
-from schema import Query, Response, SearchResult
+from schema import Query, SearchResult
 
 
 class BaseRAG(ABC):
@@ -12,5 +12,3 @@ class BaseRAG(ABC):
     @abstractmethod
     def search(self, query: Query, n_results: int) -> list[SearchResult]: ...
 
-    @abstractmethod
-    def generate(self, query: Query, n_results: int) -> Response: ...

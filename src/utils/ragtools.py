@@ -33,6 +33,12 @@ def make_images(results: list[SearchResult]) -> list[Image]:
     ]
 
 
+def sort_by_modality(results: list[SearchResult]) -> list[SearchResult]:
+    results = [result for result in results if result.payload.get("source") == "text"]
+    results += [result for result in results if result.payload.get("source") == "image"]
+    return results
+
+
 def make_citations(results: list[SearchResult]) -> list[Citation]:
     citations = []
     for result in results:

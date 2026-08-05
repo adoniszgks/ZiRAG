@@ -26,7 +26,7 @@ def build_llm(model: str = LLM_MODEL, system_prompt: str = SYSTEM_PROMPT) -> Gem
     )
 
 
-def build_textual_rag(client: QdrantClient, llm: GeminiLLM) -> TextualRAG:
+def build_textual_rag(client: QdrantClient) -> TextualRAG:
     return TextualRAG(
         indexer=QdrantIndexer(
             client=client,
@@ -36,11 +36,10 @@ def build_textual_rag(client: QdrantClient, llm: GeminiLLM) -> TextualRAG:
         ),
         embedder=TextEmbedder(),
         bm25=BM25Searcher(),
-        llm=llm,
     )
 
 
-def build_visual_rag(client: QdrantClient, llm: GeminiLLM) -> VisualRAG:
+def build_visual_rag(client: QdrantClient) -> VisualRAG:
     try:
         retriever = ColQwen2Retriever(local_files_only=True)
     except Exception:
@@ -53,11 +52,10 @@ def build_visual_rag(client: QdrantClient, llm: GeminiLLM) -> VisualRAG:
             is_multivector=True,
         ),
         retriever=retriever,
-        llm=llm,
     )
 
 
-def build_aural_rag(client: QdrantClient, llm: GeminiLLM) -> AuralRAG:
+def build_aural_rag(client: QdrantClient) -> AuralRAG:
     return AuralRAG(
         indexer=QdrantIndexer(
             client=client,
@@ -66,15 +64,14 @@ def build_aural_rag(client: QdrantClient, llm: GeminiLLM) -> AuralRAG:
             is_multivector=False,
         ),
         embedder=AudioEmbedder(),
-        llm=llm,
     )
 
 
 def build_mrag(client: QdrantClient, llm: GeminiLLM) -> MultimodalRAG:
     return MultimodalRAG(
-        textual_rag=build_textual_rag(client, llm),
-        visual_rag=build_visual_rag(client, llm),
-        aural_rag=build_aural_rag(client, llm),
+        textual_rag=build_textual_rag(client),
+        visual_rag=build_visual_rag(client),
+        aural_rag=build_aural_rag(client),
         llm=llm,
     )
 

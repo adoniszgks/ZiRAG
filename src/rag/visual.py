@@ -3,30 +3,17 @@ from pathlib import Path
 
 # Internal libs
 from rag.base import BaseRAG
-from rag.generation.llm.gemini import GeminiLLM
 from rag.retrieval.models.vlm.colqwen2 import ColQwen2Retriever
-from schema import Context, Query, Response, SearchResult
+from schema import Query, SearchResult
 from utils.pdftools import convert_pdf_to_pil_images, extract_pdf_texts
-from utils.ragtools import (
-    make_ids,
-    make_image_metadatas,
-    make_images,
-    make_text_metadatas,
-    make_texts,
-)
+from utils.ragtools import make_ids, make_image_metadatas, make_text_metadatas
 from vectorstore.base import BaseIndexer
 
 
 class VisualRAG(BaseRAG):
-    def __init__(
-        self,
-        indexer: BaseIndexer,
-        retriever: ColQwen2Retriever,
-        llm: GeminiLLM,
-    ) -> None:
+    def __init__(self, indexer: BaseIndexer, retriever: ColQwen2Retriever) -> None:
         self.indexer = indexer
         self.retriever = retriever
-        self.llm = llm
 
     def index(self, file_path: Path | None) -> None:
         if not file_path:
@@ -46,10 +33,3 @@ class VisualRAG(BaseRAG):
             return []
         query_embeddings = self.retriever.embed_images(query.images)[0].tolist()
         return self.indexer.search(query_embeddings, n_results)
-
-    def generate(self, query: Query, n_results: int) -> Response:
-        results = self.search(query, n_results)
-        texts = make_texts(results)
-        images = make_images(results)
-        context = Context(query=query, texts=texts, images=images)
-        return self.llm.generate(context)
