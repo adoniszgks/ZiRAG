@@ -18,6 +18,8 @@ def _texts_to_part(text: str) -> Part:
 
 def _image_to_part(image: Image) -> Part:
     buffer = BytesIO()
+    if image.mode != "RGB":
+        image = image.convert("RGB")
     image.save(buffer, format="JPEG")
     return Part.from_bytes(data=buffer.getvalue(), mime_type="image/jpeg")
 
